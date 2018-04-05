@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="deeplearning," />
 
 
 
@@ -79,16 +79,24 @@
 
 
 
-<meta name="description" content="我爱学习">
-<meta property="og:type" content="website">
-<meta property="og:title" content="我的博客">
-<meta property="og:url" content="http://yoursite.com/index.html">
+<meta name="description" content="介绍如果神经网络过度拟合了数据，也就是存在高方差问题。我们经常会使用正则化来降低方差，也可以准备更多的数据，但是有时无法获取到足够的数据或者说获取数据的成本很高，所以正则化是一个很好的方法来解决过拟合问题。 实现公式 解释 λ 是正则化参数，通常使用验证集或者交叉验证集来配置这个参数 其中第二项为正则化项：   加上正则化项后如何实现实现梯度下降反向传播时：更新参数：事实上，这相当于我们把矩阵W减">
+<meta name="keywords" content="deeplearning">
+<meta property="og:type" content="article">
+<meta property="og:title" content="L2正则化">
+<meta property="og:url" content="http://yoursite.com/2018/04/05/L2正则化/index.html">
 <meta property="og:site_name" content="我的博客">
-<meta property="og:description" content="我爱学习">
+<meta property="og:description" content="介绍如果神经网络过度拟合了数据，也就是存在高方差问题。我们经常会使用正则化来降低方差，也可以准备更多的数据，但是有时无法获取到足够的数据或者说获取数据的成本很高，所以正则化是一个很好的方法来解决过拟合问题。 实现公式 解释 λ 是正则化参数，通常使用验证集或者交叉验证集来配置这个参数 其中第二项为正则化项：   加上正则化项后如何实现实现梯度下降反向传播时：更新参数：事实上，这相当于我们把矩阵W减">
 <meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/10461798-773ce1f32c861958.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/10461798-80c7d439a9b23729.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/10461798-e814314464053e83.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/10461798-7a3ba73006488b09.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/10461798-e38f8618c6c52373.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2018-04-05T05:58:44.636Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="我的博客">
-<meta name="twitter:description" content="我爱学习">
+<meta name="twitter:title" content="L2正则化">
+<meta name="twitter:description" content="介绍如果神经网络过度拟合了数据，也就是存在高方差问题。我们经常会使用正则化来降低方差，也可以准备更多的数据，但是有时无法获取到足够的数据或者说获取数据的成本很高，所以正则化是一个很好的方法来解决过拟合问题。 实现公式 解释 λ 是正则化参数，通常使用验证集或者交叉验证集来配置这个参数 其中第二项为正则化项：   加上正则化项后如何实现实现梯度下降反向传播时：更新参数：事实上，这相当于我们把矩阵W减">
+<meta name="twitter:image" content="https://upload-images.jianshu.io/upload_images/10461798-773ce1f32c861958.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 
 
 
@@ -118,13 +126,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/"/>
+  <link rel="canonical" href="http://yoursite.com/2018/04/05/L2正则化/"/>
 
 
 
 
 
-  <title>我的博客</title>
+  <title>L2正则化 | 我的博客</title>
   
 
 
@@ -143,8 +151,7 @@
     
   
 
-  <div class="container sidebar-position-left 
-  page-home">
+  <div class="container sidebar-position-left page-post-detail">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -247,9 +254,9 @@
         <div class="content-wrap">
           <div id="content" class="content">
             
-  <section id="posts" class="posts-expand">
+
+  <div id="posts" class="posts-expand">
     
-      
 
   
 
@@ -279,9 +286,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/04/05/L2正则化/" itemprop="url">L2正则化</a></h1>
+          <h1 class="post-title" itemprop="name headline">L2正则化</h1>
         
 
         <div class="post-meta">
@@ -331,9 +336,7 @@
       
 
       
-        
-          
-            <h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><p>如果神经网络过度拟合了数据，也就是存在高方差问题。我们经常会使用正则化来降低方差，也可以准备更多的数据，但是有时无法获取到足够的数据或者说获取数据的成本很高，所以正则化是一个很好的方法来解决过拟合问题。</p>
+        <h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><p>如果神经网络过度拟合了数据，也就是存在高方差问题。我们经常会使用正则化来降低方差，也可以准备更多的数据，但是有时无法获取到足够的数据或者说获取数据的成本很高，所以正则化是一个很好的方法来解决过拟合问题。</p>
 <h1 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h1><h2 id="公式"><a href="#公式" class="headerlink" title="公式"></a>公式</h2><p><img src="https://upload-images.jianshu.io/upload_images/10461798-773ce1f32c861958.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="L2正则化"></p>
 <h2 id="解释"><a href="#解释" class="headerlink" title="解释"></a>解释</h2><ul>
 <li>λ 是正则化参数，通常使用验证集或者交叉验证集来配置这个参数</li>
@@ -348,8 +351,6 @@
 <li><a href="https://www.deeplearning.ai/" target="_blank" rel="noopener">deeplearning.ai</a><br>注：本文涉及的图片及资料均整理翻译自Andrew Ng的Deep Learning系列课程，版权归其所有。</li>
 </ul>
 
-          
-        
       
     </div>
     
@@ -359,139 +360,65 @@
     
 
     
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>下面是打赏功能</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.png" alt="ZZKdev 微信支付"/>
+        <p>微信支付</p>
+      </div>
+    
+
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
 
     
 
     <footer class="post-footer">
       
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/24/hello-blog/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="ZZKdev">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="我的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/03/24/hello-blog/" itemprop="url">hello, blog</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-24T21:00:34+08:00">
-                2018-03-24
-              </time>
-            
-
-            
-
-            
-          </span>
-
+        <div class="post-tags">
           
-
+            <a href="/tags/deeplearning/" rel="tag"><i class="fa fa-tag"></i>deeplearning</a>
           
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
         </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>从今天开始，我会在这里分享一些我的学习总结。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
       
 
       
       
-        <div class="post-eof"></div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/24/hello-blog/" rel="next" title="hello, blog">
+                <i class="fa fa-chevron-left"></i> hello, blog
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
       
     </footer>
   </div>
@@ -501,10 +428,11 @@
   </article>
 
 
-    
-  </section>
 
-  
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -512,6 +440,10 @@
 
 
           
+
+  
+
+
 
         </div>
         
@@ -532,8 +464,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -604,6 +545,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#介绍"><span class="nav-number">1.</span> <span class="nav-text">介绍</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#实现"><span class="nav-number">2.</span> <span class="nav-text">实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#公式"><span class="nav-number">2.1.</span> <span class="nav-text">公式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#解释"><span class="nav-number">2.2.</span> <span class="nav-text">解释</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#加上正则化项后如何实现实现梯度下降"><span class="nav-number">2.3.</span> <span class="nav-text">加上正则化项后如何实现实现梯度下降</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#为什么正则化可以降低方差"><span class="nav-number">2.4.</span> <span class="nav-text">为什么正则化可以降低方差</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#直观上理解"><span class="nav-number">2.4.1.</span> <span class="nav-text">直观上理解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#下面以tanh为激活函数为例子"><span class="nav-number">2.4.2.</span> <span class="nav-text">下面以tanh为激活函数为例子</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#问题"><span class="nav-number">2.4.2.1.</span> <span class="nav-text">问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#注意事项"><span class="nav-number">2.4.2.2.</span> <span class="nav-text">注意事项</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#参考资料"><span class="nav-number">2.4.2.3.</span> <span class="nav-text">参考资料</span></a></li></ol></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
@@ -753,6 +710,10 @@
 
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
 
   
 
