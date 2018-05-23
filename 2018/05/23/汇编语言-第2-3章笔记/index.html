@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="deeplearning," />
+  <meta name="keywords" content="notes,assembly language," />
 
 
 
@@ -79,20 +79,23 @@
 
 
 
-<meta name="description" content="理解dropout 用于解决过拟合问题 Dropout存在两个版本：直接（不常用）和反转。(这里只对Inverted Dropout进行说明) dropout是指在深度学习网络的训练过程中，对于神经网络单元，按照一定的概率将其暂时从网络中丢弃。（注意是暂时）   上图为Dropout的可视化表示，左边是应用Dropout之前的网络，右边是应用了Dropout的同一个网络。 dropout 如何工作">
-<meta name="keywords" content="deeplearning">
+<meta name="description" content="寄存器 note : 本书讲的CPU是8086CPU与现代CPU会有所差异  一个典型CPU组成由运算器、控制器、寄存器构成，这些器件靠内部总线相连，前一章的总线，相对于CPU内部来说是外部总线。内部总线实现CPU内部各个器件的联系，外部总线实现CPU和主板上的其他器件的联系。其中：  运算器进行信息处理 寄存器进行信息存储 控制器控制各种器件进行工作   note : 对于一个汇编程序员来说，C">
+<meta name="keywords" content="notes,assembly language">
 <meta property="og:type" content="article">
-<meta property="og:title" content="dropout正则化">
-<meta property="og:url" content="http://yoursite.com/2018/04/06/dropout正则化/index.html">
+<meta property="og:title" content="&lt;&lt;汇编语言&gt;&gt;第2~3章笔记">
+<meta property="og:url" content="http://yoursite.com/2018/05/23/汇编语言-第2-3章笔记/index.html">
 <meta property="og:site_name" content="我的博客">
-<meta property="og:description" content="理解dropout 用于解决过拟合问题 Dropout存在两个版本：直接（不常用）和反转。(这里只对Inverted Dropout进行说明) dropout是指在深度学习网络的训练过程中，对于神经网络单元，按照一定的概率将其暂时从网络中丢弃。（注意是暂时）   上图为Dropout的可视化表示，左边是应用Dropout之前的网络，右边是应用了Dropout的同一个网络。 dropout 如何工作">
+<meta property="og:description" content="寄存器 note : 本书讲的CPU是8086CPU与现代CPU会有所差异  一个典型CPU组成由运算器、控制器、寄存器构成，这些器件靠内部总线相连，前一章的总线，相对于CPU内部来说是外部总线。内部总线实现CPU内部各个器件的联系，外部总线实现CPU和主板上的其他器件的联系。其中：  运算器进行信息处理 寄存器进行信息存储 控制器控制各种器件进行工作   note : 对于一个汇编程序员来说，C">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/10461798-b6b4afc39e214094.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2018-04-06T03:39:35.943Z">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/10461798-bdf3bc44be54cf96.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/10461798-d0673d55d715e006.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/10461798-e3eca40423a52d65.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/10461798-69e0e8b62258926d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2018-05-23T12:26:44.370Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="dropout正则化">
-<meta name="twitter:description" content="理解dropout 用于解决过拟合问题 Dropout存在两个版本：直接（不常用）和反转。(这里只对Inverted Dropout进行说明) dropout是指在深度学习网络的训练过程中，对于神经网络单元，按照一定的概率将其暂时从网络中丢弃。（注意是暂时）   上图为Dropout的可视化表示，左边是应用Dropout之前的网络，右边是应用了Dropout的同一个网络。 dropout 如何工作">
-<meta name="twitter:image" content="https://upload-images.jianshu.io/upload_images/10461798-b6b4afc39e214094.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta name="twitter:title" content="&lt;&lt;汇编语言&gt;&gt;第2~3章笔记">
+<meta name="twitter:description" content="寄存器 note : 本书讲的CPU是8086CPU与现代CPU会有所差异  一个典型CPU组成由运算器、控制器、寄存器构成，这些器件靠内部总线相连，前一章的总线，相对于CPU内部来说是外部总线。内部总线实现CPU内部各个器件的联系，外部总线实现CPU和主板上的其他器件的联系。其中：  运算器进行信息处理 寄存器进行信息存储 控制器控制各种器件进行工作   note : 对于一个汇编程序员来说，C">
+<meta name="twitter:image" content="https://upload-images.jianshu.io/upload_images/10461798-bdf3bc44be54cf96.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 
 
 
@@ -122,13 +125,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2018/04/06/dropout正则化/"/>
+  <link rel="canonical" href="http://yoursite.com/2018/05/23/汇编语言-第2-3章笔记/"/>
 
 
 
 
 
-  <title>dropout正则化 | 我的博客</title>
+  <title><<汇编语言>>第2~3章笔记 | 我的博客</title>
   
 
 
@@ -265,7 +268,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/04/06/dropout正则化/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/23/汇编语言-第2-3章笔记/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="ZZKdev">
@@ -282,7 +285,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">dropout正则化</h1>
+          <h1 class="post-title" itemprop="name headline"><<汇编语言>>第2~3章笔记</h1>
         
 
         <div class="post-meta">
@@ -294,8 +297,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-06T11:24:33+08:00">
-                2018-04-06
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-23T20:25:23+08:00">
+                2018-05-23
               </time>
             
 
@@ -332,36 +335,62 @@
       
 
       
-        <h1 id="理解dropout"><a href="#理解dropout" class="headerlink" title="理解dropout"></a>理解dropout</h1><ul>
-<li>用于解决过拟合问题</li>
-<li>Dropout存在两个版本：直接（不常用）和反转。(这里只对Inverted Dropout进行说明)</li>
-<li>dropout是指在深度学习网络的训练过程中，对于神经网络单元，按照一定的概率将其暂时从网络中丢弃。（注意是暂时）</li>
-</ul>
-<p><img src="https://upload-images.jianshu.io/upload_images/10461798-b6b4afc39e214094.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
-<p>上图为Dropout的可视化表示，左边是应用Dropout之前的网络，右边是应用了Dropout的同一个网络。</p>
-<h2 id="dropout-如何工作"><a href="#dropout-如何工作" class="headerlink" title="dropout 如何工作"></a>dropout 如何工作</h2><p>我们知道，典型的神经网络其训练流程是将输入通过网络进行正向传导，然后将误差进行反向传播。Dropout就是针对这一过程之中，随机地删除隐藏层的部分单元，进行上述过程。<br>综合而言，上述过程可以分步骤为：</p>
+        <h2 id="寄存器"><a href="#寄存器" class="headerlink" title="寄存器"></a>寄存器</h2><blockquote>
+<p><strong>note</strong> : 本书讲的CPU是8086CPU与现代CPU会有所差异</p>
+</blockquote>
+<h3 id="一个典型CPU组成"><a href="#一个典型CPU组成" class="headerlink" title="一个典型CPU组成"></a>一个典型CPU组成</h3><p>由运算器、控制器、寄存器构成，这些器件靠内部总线相连，前一章的总线，相对于CPU内部来说是外部总线。内部总线实现CPU内部各个器件的联系，外部总线实现CPU和主板上的其他器件的联系。其中：</p>
 <ul>
-<li>随机删除网络中的一些隐藏神经元，保持输入输出神经元不变</li>
-<li>将输入通过修改后的网络进行前向传播，然后将误差通过修改后的网络进行反向传播</li>
-<li>对于另外一批的训练样本，重复上述操作</li>
+<li>运算器进行信息处理</li>
+<li>寄存器进行信息存储</li>
+<li>控制器控制各种器件进行工作</li>
 </ul>
-<p>在训练阶段期间对激活值进行缩放，而测试阶段保持不变<br>下面是对一层神经网络的实施dropout代码实现：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">d = np.random.rand(<span class="number">3</span>, <span class="number">2</span>) &lt; keep_drop</span><br><span class="line">a = np.multiply(a, d)</span><br><span class="line">a /= keep_drop //对激活值进行缩放，为了不影响下一层网络的最后的预期输出值，加上这个步骤来修正损失的值</span><br></pre></td></tr></table></figure></p>
-<h2 id="dropout为何有效"><a href="#dropout为何有效" class="headerlink" title="dropout为何有效"></a>dropout为何有效</h2><ul>
-<li>由于每次用输入网络的样本进行权值更新时，隐含节点都是以一定概率随机出现，因此不能保证每2个隐含节点每次都同时出现，这样权值的更新不再依赖于有固定关系隐含节点的共同作用，阻止了某些特征仅仅在其它特定特征下才有效果的情况，减少神经元之间复杂的共适应性。</li>
-<li>由于每一次都会随机地删除节点，下一个节点的输出不再那么依靠上一个节点，也就是说它在分配权重时，不会给上一层的某一结点非配过多的权重，起到了和L2正则化压缩权重差不多的作用。</li>
-<li>可以将dropout看作是模型平均的一种，平均一个大量不同的网络。不同的网络在不同的情况下过拟合，虽然不同的网络可能会产生不同程度的过拟合，但是将其公用一个损失函数，相当于对其同时进行了优化，取了平均，因此可以较为有效地防止过拟合的发生。对于每次输入到网络中的样本（可能是一个样本，也可能是一个batch的样本），其对应的网络结构都是不同的，但所有的这些不同的网络结构又同时共享隐含节点的权值，这种平均的架构被发现通常是十分有用的来减少过拟合方法。</li>
+<blockquote>
+<p><strong>note</strong> : 对于一个汇编程序员来说，CPU中的主要部件是寄存器</p>
+</blockquote>
+<h3 id="通用寄存器"><a href="#通用寄存器" class="headerlink" title="通用寄存器"></a>通用寄存器</h3><p>AX，BX，CX，DX这四个（16位）寄存器用来存放一般性数据，称为通用寄存器。为了保证兼容，这四个寄存器可以分成两个8位的寄存器来使用，如AX可以分成AL和AH。</p>
+<h3 id="16位的CPU"><a href="#16位的CPU" class="headerlink" title="16位的CPU"></a>16位的CPU</h3><p>16位CPU的特性：</p>
+<ul>
+<li>运算器一次最多可以处理16位的数据</li>
+<li>寄存器的最大宽度为16位</li>
+<li>寄存器和运算器之间的通路为16位</li>
 </ul>
-<h2 id="dropout使用技巧"><a href="#dropout使用技巧" class="headerlink" title="dropout使用技巧"></a>dropout使用技巧</h2><ul>
-<li>在可能出现过拟合的网络层使用dropout</li>
-<li>dropout也可以被用作一种添加噪声的方法，直接对input进行操作。输入层设为更接近1的数，使得输入变化不会太大</li>
-</ul>
-<h2 id="dropout缺点"><a href="#dropout缺点" class="headerlink" title="dropout缺点"></a>dropout缺点</h2><ul>
-<li>明确定义的损失函数每一次迭代都会下降，而dropout每一次都会随机删除节点，也就是说每一次训练的网络都是不同的，损失函数不再被明确地定义，在某种程度上很难计算，我们失去了调试工具。</li>
-</ul>
-<h1 id="当前Dropout的使用情况"><a href="#当前Dropout的使用情况" class="headerlink" title="当前Dropout的使用情况"></a>当前Dropout的使用情况</h1><p>当前Dropout被大量利用于全连接网络，而且一般人为设置为0.5或者0.3，而在卷积隐藏层由于卷积自身的稀疏化以及稀疏化的ReLu函数的大量使用等原因，Dropout策略在卷积隐藏层中使用较少。<br>总体而言，Dropout是一个超参，需要根据具体的网路，具体的应用领域进行尝试。</p>
-<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
-<li><a href="https://www.deeplearning.ai/" target="_blank" rel="noopener">deeplearning.ai</a><br>注：本文涉及的图片及资料均整理翻译自Andrew Ng的Deep Learning系列课程，版权归其所有。</li>
-</ul>
+<h3 id="8086CPU给出物理地址的方法"><a href="#8086CPU给出物理地址的方法" class="headerlink" title="8086CPU给出物理地址的方法"></a>8086CPU给出物理地址的方法</h3><p>8086CPU有20位地址总线，它采用一种在内部使用两个16位地址合成的方法来形成一个20位地址。地址加法器采用<strong>物理地址 = 段地址 * 16 + 偏移地址</strong>的方法合成地址。</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/10461798-bdf3bc44be54cf96.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="8086CPU相关逻辑结构"></p>
+<blockquote>
+<p><strong>note</strong> : 8086CPU中，一个段的起始地址一定是16的倍数。16位偏移地址的寻址能力为64KB，所以一个段的长度最大为64KB。</p>
+</blockquote>
+<h3 id="段寄存器"><a href="#段寄存器" class="headerlink" title="段寄存器"></a>段寄存器</h3><p>CS、DS、SS、ES这四个寄存器为段寄存器，提供内存单元的段地址。</p>
+<h4 id="CS和IP寄存器"><a href="#CS和IP寄存器" class="headerlink" title="CS和IP寄存器"></a>CS和IP寄存器</h4><p>CS和IP寄存器指示了要读取指令的地址，CS为代码段寄存器，IP为指令指针寄存器。</p>
+<blockquote>
+<p><strong>note</strong> : 8086CPU中，CPU将CS:IP指向的内容当作指令执行</p>
+</blockquote>
+<p>下面是8086CPU读取和执行指令的相关部件</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/10461798-d0673d55d715e006.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+<p>工作流程：</p>
+<ol>
+<li>从CS:IP指向的内存单元读取指令，读取的指令进入指令缓冲器</li>
+<li>IP=IP+所读指令长度，从而指向下一条指令</li>
+<li>执行指令。转到步骤1，重复这个过程</li>
+</ol>
+<h4 id="DS寄存器（内存访问）"><a href="#DS寄存器（内存访问）" class="headerlink" title="DS寄存器（内存访问）"></a>DS寄存器（内存访问）</h4><p>DS寄存器通常用来存放要访问数据的段地址</p>
+<h4 id="SS和SP寄存器"><a href="#SS和SP寄存器" class="headerlink" title="SS和SP寄存器"></a>SS和SP寄存器</h4><p>8086CPU提供了相关的指令来以栈的方式来访问内存，任意时刻SS:SP指向栈顶元素。<br>push ax过程：</p>
+<ol>
+<li>SP = SP - 2，SS:SP指向当前栈顶前面的单元，以当前栈顶前面的单元为新的栈顶</li>
+<li>将ax中的内容送入SS:SP指向的内存单元处，SS:SP此时指向新的栈顶</li>
+</ol>
+<p><img src="https://upload-images.jianshu.io/upload_images/10461798-e3eca40423a52d65.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="push指令执行过程"></p>
+<blockquote>
+<p><strong>note</strong> : 8086CPU中，入栈时，栈顶从高地址向低地址方向增长</p>
+</blockquote>
+<p>pop ax过程：</p>
+<ol>
+<li>将SS:SP指向的内存单元处的数据送入ax中</li>
+<li>SP = SP + 2，SS:SP指向当前栈顶下面的单元，以当前栈顶下面的单元为新的栈顶</li>
+</ol>
+<p><img src="https://upload-images.jianshu.io/upload_images/10461798-69e0e8b62258926d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="pop指令执行过程"></p>
+<blockquote>
+<p><strong>note</strong> : push、pop实质上时一种内存传送指令，注意它们的灵活应用。8086CPU只记录栈顶，栈的空间需要我们自己管理。</p>
+</blockquote>
 
       
     </div>
@@ -403,7 +432,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/deeplearning/" rel="tag"><i class="fa fa-tag"></i>deeplearning</a>
+            <a href="/tags/notes/" rel="tag"><i class="fa fa-tag"></i>notes</a>
+          
+            <a href="/tags/assembly-language/" rel="tag"><i class="fa fa-tag"></i>assembly language</a>
           
         </div>
       
@@ -416,8 +447,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/04/05/L2正则化/" rel="next" title="L2正则化">
-                <i class="fa fa-chevron-left"></i> L2正则化
+              <a href="/2018/05/22/汇编语言-第1章笔记/" rel="next" title="<<汇编语言>>第1章笔记">
+                <i class="fa fa-chevron-left"></i> <<汇编语言>>第1章笔记
               </a>
             
           </div>
@@ -425,10 +456,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/04/06/Early-Stopping/" rel="prev" title="Early Stopping">
-                Early Stopping <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -571,7 +598,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#理解dropout"><span class="nav-number">1.</span> <span class="nav-text">理解dropout</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#dropout-如何工作"><span class="nav-number">1.1.</span> <span class="nav-text">dropout 如何工作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#dropout为何有效"><span class="nav-number">1.2.</span> <span class="nav-text">dropout为何有效</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#dropout使用技巧"><span class="nav-number">1.3.</span> <span class="nav-text">dropout使用技巧</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#dropout缺点"><span class="nav-number">1.4.</span> <span class="nav-text">dropout缺点</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#当前Dropout的使用情况"><span class="nav-number">2.</span> <span class="nav-text">当前Dropout的使用情况</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考资料"><span class="nav-number">3.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#寄存器"><span class="nav-number">1.</span> <span class="nav-text">寄存器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#一个典型CPU组成"><span class="nav-number">1.1.</span> <span class="nav-text">一个典型CPU组成</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#通用寄存器"><span class="nav-number">1.2.</span> <span class="nav-text">通用寄存器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#16位的CPU"><span class="nav-number">1.3.</span> <span class="nav-text">16位的CPU</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8086CPU给出物理地址的方法"><span class="nav-number">1.4.</span> <span class="nav-text">8086CPU给出物理地址的方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#段寄存器"><span class="nav-number">1.5.</span> <span class="nav-text">段寄存器</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#CS和IP寄存器"><span class="nav-number">1.5.1.</span> <span class="nav-text">CS和IP寄存器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#DS寄存器（内存访问）"><span class="nav-number">1.5.2.</span> <span class="nav-text">DS寄存器（内存访问）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SS和SP寄存器"><span class="nav-number">1.5.3.</span> <span class="nav-text">SS和SP寄存器</span></a></li></ol></li></ol></li></ol></div>
             
 
           </div>
