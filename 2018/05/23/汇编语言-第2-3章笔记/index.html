@@ -91,7 +91,7 @@
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/10461798-d0673d55d715e006.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/10461798-e3eca40423a52d65.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/10461798-69e0e8b62258926d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2018-05-23T12:26:44.370Z">
+<meta property="og:updated_time" content="2018-05-23T15:58:27.950Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="&lt;&lt;汇编语言&gt;&gt;第2~3章笔记">
 <meta name="twitter:description" content="寄存器 note : 本书讲的CPU是8086CPU与现代CPU会有所差异  一个典型CPU组成由运算器、控制器、寄存器构成，这些器件靠内部总线相连，前一章的总线，相对于CPU内部来说是外部总线。内部总线实现CPU内部各个器件的联系，外部总线实现CPU和主板上的其他器件的联系。其中：  运算器进行信息处理 寄存器进行信息存储 控制器控制各种器件进行工作   note : 对于一个汇编程序员来说，C">
@@ -372,7 +372,7 @@
 <li>IP=IP+所读指令长度，从而指向下一条指令</li>
 <li>执行指令。转到步骤1，重复这个过程</li>
 </ol>
-<h4 id="DS寄存器（内存访问）"><a href="#DS寄存器（内存访问）" class="headerlink" title="DS寄存器（内存访问）"></a>DS寄存器（内存访问）</h4><p>DS寄存器通常用来存放要访问数据的段地址</p>
+<h4 id="DS和BX寄存器（内存访问）"><a href="#DS和BX寄存器（内存访问）" class="headerlink" title="DS和BX寄存器（内存访问）"></a>DS和BX寄存器（内存访问）</h4><p>DS寄存器通常用来存放要访问数据的段地址，BX寄存器存放内存单元的偏移地址，使用方法：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mov ax, [bx] # 把ds:bx内存单元的数据送入ax中</span><br></pre></td></tr></table></figure></p>
 <h4 id="SS和SP寄存器"><a href="#SS和SP寄存器" class="headerlink" title="SS和SP寄存器"></a>SS和SP寄存器</h4><p>8086CPU提供了相关的指令来以栈的方式来访问内存，任意时刻SS:SP指向栈顶元素。<br>push ax过程：</p>
 <ol>
 <li>SP = SP - 2，SS:SP指向当前栈顶前面的单元，以当前栈顶前面的单元为新的栈顶</li>
@@ -602,7 +602,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#寄存器"><span class="nav-number">1.</span> <span class="nav-text">寄存器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#一个典型CPU组成"><span class="nav-number">1.1.</span> <span class="nav-text">一个典型CPU组成</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#通用寄存器"><span class="nav-number">1.2.</span> <span class="nav-text">通用寄存器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#16位的CPU"><span class="nav-number">1.3.</span> <span class="nav-text">16位的CPU</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8086CPU给出物理地址的方法"><span class="nav-number">1.4.</span> <span class="nav-text">8086CPU给出物理地址的方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#段寄存器"><span class="nav-number">1.5.</span> <span class="nav-text">段寄存器</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#CS和IP寄存器"><span class="nav-number">1.5.1.</span> <span class="nav-text">CS和IP寄存器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#DS寄存器（内存访问）"><span class="nav-number">1.5.2.</span> <span class="nav-text">DS寄存器（内存访问）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SS和SP寄存器"><span class="nav-number">1.5.3.</span> <span class="nav-text">SS和SP寄存器</span></a></li></ol></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#寄存器"><span class="nav-number">1.</span> <span class="nav-text">寄存器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#一个典型CPU组成"><span class="nav-number">1.1.</span> <span class="nav-text">一个典型CPU组成</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#通用寄存器"><span class="nav-number">1.2.</span> <span class="nav-text">通用寄存器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#16位的CPU"><span class="nav-number">1.3.</span> <span class="nav-text">16位的CPU</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8086CPU给出物理地址的方法"><span class="nav-number">1.4.</span> <span class="nav-text">8086CPU给出物理地址的方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#段寄存器"><span class="nav-number">1.5.</span> <span class="nav-text">段寄存器</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#CS和IP寄存器"><span class="nav-number">1.5.1.</span> <span class="nav-text">CS和IP寄存器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#DS和BX寄存器（内存访问）"><span class="nav-number">1.5.2.</span> <span class="nav-text">DS和BX寄存器（内存访问）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SS和SP寄存器"><span class="nav-number">1.5.3.</span> <span class="nav-text">SS和SP寄存器</span></a></li></ol></li></ol></li></ol></div>
             
 
           </div>
