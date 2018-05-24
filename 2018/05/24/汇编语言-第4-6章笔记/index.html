@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="deeplearning," />
+  <meta name="keywords" content="notes,assembly language," />
 
 
 
@@ -79,24 +79,20 @@
 
 
 
-<meta name="description" content="介绍如果神经网络过度拟合了数据，也就是存在高方差问题。我们经常会使用正则化来降低方差，也可以准备更多的数据，但是有时无法获取到足够的数据或者说获取数据的成本很高，所以正则化是一个很好的方法来解决过拟合问题。 实现公式 解释 λ 是正则化参数，通常使用验证集或者交叉验证集来配置这个参数 其中第二项为正则化项：   加上正则化项后如何实现实现梯度下降反向传播时：更新参数：事实上，这相当于我们把矩阵W减">
-<meta name="keywords" content="deeplearning">
+<meta name="description" content="伪指令伪指令是由编译器来执行的指令，编译器根据伪指令来进行相关的编译操作 segment和endssegment和ends是一对成对使用的伪指令，用来定义一个段，segment说明一个段的开始，ends结束。一个段必须由一个名称来标识，使用格式为：123段名 segment...段名 ends endend 通知编译器程序的入口和结束1234# 示例start:      代码段end start">
+<meta name="keywords" content="notes,assembly language">
 <meta property="og:type" content="article">
-<meta property="og:title" content="L2正则化">
-<meta property="og:url" content="http://yoursite.com/2018/04/05/L2正则化/index.html">
+<meta property="og:title" content="&lt;&lt;汇编语言&gt;&gt;第4~6章笔记">
+<meta property="og:url" content="http://yoursite.com/2018/05/24/汇编语言-第4-6章笔记/index.html">
 <meta property="og:site_name" content="我的博客">
-<meta property="og:description" content="介绍如果神经网络过度拟合了数据，也就是存在高方差问题。我们经常会使用正则化来降低方差，也可以准备更多的数据，但是有时无法获取到足够的数据或者说获取数据的成本很高，所以正则化是一个很好的方法来解决过拟合问题。 实现公式 解释 λ 是正则化参数，通常使用验证集或者交叉验证集来配置这个参数 其中第二项为正则化项：   加上正则化项后如何实现实现梯度下降反向传播时：更新参数：事实上，这相当于我们把矩阵W减">
+<meta property="og:description" content="伪指令伪指令是由编译器来执行的指令，编译器根据伪指令来进行相关的编译操作 segment和endssegment和ends是一对成对使用的伪指令，用来定义一个段，segment说明一个段的开始，ends结束。一个段必须由一个名称来标识，使用格式为：123段名 segment...段名 ends endend 通知编译器程序的入口和结束1234# 示例start:      代码段end start">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/10461798-773ce1f32c861958.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/10461798-80c7d439a9b23729.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/10461798-e814314464053e83.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/10461798-7a3ba73006488b09.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/10461798-e38f8618c6c52373.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2018-05-23T10:46:34.357Z">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/10461798-62cad12cd6bd8b52.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2018-05-24T09:19:51.657Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="L2正则化">
-<meta name="twitter:description" content="介绍如果神经网络过度拟合了数据，也就是存在高方差问题。我们经常会使用正则化来降低方差，也可以准备更多的数据，但是有时无法获取到足够的数据或者说获取数据的成本很高，所以正则化是一个很好的方法来解决过拟合问题。 实现公式 解释 λ 是正则化参数，通常使用验证集或者交叉验证集来配置这个参数 其中第二项为正则化项：   加上正则化项后如何实现实现梯度下降反向传播时：更新参数：事实上，这相当于我们把矩阵W减">
-<meta name="twitter:image" content="https://upload-images.jianshu.io/upload_images/10461798-773ce1f32c861958.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta name="twitter:title" content="&lt;&lt;汇编语言&gt;&gt;第4~6章笔记">
+<meta name="twitter:description" content="伪指令伪指令是由编译器来执行的指令，编译器根据伪指令来进行相关的编译操作 segment和endssegment和ends是一对成对使用的伪指令，用来定义一个段，segment说明一个段的开始，ends结束。一个段必须由一个名称来标识，使用格式为：123段名 segment...段名 ends endend 通知编译器程序的入口和结束1234# 示例start:      代码段end start">
+<meta name="twitter:image" content="https://upload-images.jianshu.io/upload_images/10461798-62cad12cd6bd8b52.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 
 
 
@@ -126,13 +122,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2018/04/05/L2正则化/"/>
+  <link rel="canonical" href="http://yoursite.com/2018/05/24/汇编语言-第4-6章笔记/"/>
 
 
 
 
 
-  <title>L2正则化 | 我的博客</title>
+  <title><<汇编语言>>第4~6章笔记 | 我的博客</title>
   
 
 
@@ -269,7 +265,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/04/05/L2正则化/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/24/汇编语言-第4-6章笔记/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="ZZKdev">
@@ -286,7 +282,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">L2正则化</h1>
+          <h1 class="post-title" itemprop="name headline"><<汇编语言>>第4~6章笔记</h1>
         
 
         <div class="post-meta">
@@ -298,8 +294,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-05T13:56:49+08:00">
-                2018-04-05
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-24T17:18:21+08:00">
+                2018-05-24
               </time>
             
 
@@ -336,24 +332,26 @@
       
 
       
-        <h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><p>如果神经网络过度拟合了数据，也就是存在高方差问题。我们经常会使用正则化来降低方差，也可以准备更多的数据，但是有时无法获取到足够的数据或者说获取数据的成本很高，所以正则化是一个很好的方法来解决过拟合问题。</p>
-<h1 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h1><h2 id="公式"><a href="#公式" class="headerlink" title="公式"></a>公式</h2><p><img src="https://upload-images.jianshu.io/upload_images/10461798-773ce1f32c861958.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="L2正则化"></p>
-<h2 id="解释"><a href="#解释" class="headerlink" title="解释"></a>解释</h2><ul>
-<li>λ 是正则化参数，通常使用验证集或者交叉验证集来配置这个参数</li>
-<li>其中第二项为正则化项： <img src="https://upload-images.jianshu.io/upload_images/10461798-80c7d439a9b23729.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="正则化项"></li>
-</ul>
-<h2 id="加上正则化项后如何实现实现梯度下降"><a href="#加上正则化项后如何实现实现梯度下降" class="headerlink" title="加上正则化项后如何实现实现梯度下降"></a>加上正则化项后如何实现实现梯度下降</h2><p>反向传播时：<img src="https://upload-images.jianshu.io/upload_images/10461798-e814314464053e83.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""><br>更新参数：<img src="https://upload-images.jianshu.io/upload_images/10461798-7a3ba73006488b09.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""><br>事实上，这相当于我们把矩阵W减去αλ/m倍的它，避免权重矩阵过大，这也时L2正则化有时被叫做权重衰减的原因</p>
-<h2 id="为什么正则化可以降低方差"><a href="#为什么正则化可以降低方差" class="headerlink" title="为什么正则化可以降低方差"></a>为什么正则化可以降低方差</h2><h3 id="直观上理解"><a href="#直观上理解" class="headerlink" title="直观上理解"></a>直观上理解</h3><p>如果正则化λ设置得足够大，权重矩阵W将被设置为接近于0的值，也就是把多个隐藏单元的权重设为0，消除了这些隐藏单元的许多影响。<br>这个大大简化了的神经网络会变成一个很小的网络，小到如同一个逻辑回归单元，可是深度却很大，使过拟合的网络变成更接近高偏差的状态，但是λ会存在一个中间值，使得这个网络维持在一个低方差且偏差不那么高的状态。</p>
-<h3 id="下面以tanh为激活函数为例子"><a href="#下面以tanh为激活函数为例子" class="headerlink" title="下面以tanh为激活函数为例子"></a>下面以tanh为激活函数为例子</h3><p><img src="https://upload-images.jianshu.io/upload_images/10461798-e38f8618c6c52373.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""><br>当λ参数变大时，W矩阵变小，相应地Z矩阵也会变小，使得它维持在中间红色的部分，即相对线性的部分，使得网络更加线性，表达能力减弱，从而实现减低方差的功能</p>
-<h3 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h3><ul>
-<li>为什么只正则化参数w，不加上参数b？<br>因为w通常是一个高维参数矢量，已经可以表达高方差的问题</li>
-</ul>
-<h3 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h3><ul>
-<li>当观察损失函数变化形势时，应使用之前定义的有正则化项的损失函数，否则可能观察不到单调递减的现象，因为此时损失函数已经有了全新的定义。</li>
-</ul>
-<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><ul>
-<li><a href="https://www.deeplearning.ai/" target="_blank" rel="noopener">deeplearning.ai</a><br>注：本文涉及的图片及资料均整理翻译自Andrew Ng的Deep Learning系列课程，版权归其所有。</li>
-</ul>
+        <h2 id="伪指令"><a href="#伪指令" class="headerlink" title="伪指令"></a>伪指令</h2><p>伪指令是由编译器来执行的指令，编译器根据伪指令来进行相关的编译操作</p>
+<h3 id="segment和ends"><a href="#segment和ends" class="headerlink" title="segment和ends"></a>segment和ends</h3><p>segment和ends是一对成对使用的伪指令，用来定义一个段，segment说明一个段的开始，ends结束。一个段必须由一个名称来标识，使用格式为：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">段名 segment</span><br><span class="line">...</span><br><span class="line">段名 ends</span><br></pre></td></tr></table></figure></p>
+<h3 id="end"><a href="#end" class="headerlink" title="end"></a>end</h3><p>end 通知编译器程序的入口和结束<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># 示例</span><br><span class="line">start:</span><br><span class="line">      代码段</span><br><span class="line">end start</span><br></pre></td></tr></table></figure></p>
+<h3 id="assume"><a href="#assume" class="headerlink" title="assume"></a>assume</h3><p>这条伪指令的含义为“假设”。它假设某一段寄存器和程序中某一个用segment…ends定义的段相关联。通过这条指令，编译程序可以将段寄存器和一个具体的段相关联</p>
+<blockquote>
+<p><strong>note</strong> : 具体关联还是要依靠汇编指令的实现，CPU并不知道assume</p>
+</blockquote>
+<h3 id="db、dw、dd"><a href="#db、dw、dd" class="headerlink" title="db、dw、dd"></a>db、dw、dd</h3><p>db定义字节型数据<br>dw定义字型数据<br>dd定义双字型数据</p>
+<h2 id="DOS系统中-exe文件程序的加载过程"><a href="#DOS系统中-exe文件程序的加载过程" class="headerlink" title="DOS系统中.exe文件程序的加载过程"></a>DOS系统中.exe文件程序的加载过程</h2><p><img src="https://upload-images.jianshu.io/upload_images/10461798-62cad12cd6bd8b52.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="exe文件程序的加载过程"></p>
+<h2 id="loop指令和CX寄存器"><a href="#loop指令和CX寄存器" class="headerlink" title="loop指令和CX寄存器"></a>loop指令和CX寄存器</h2><p>CPU执行loop指令的操作：</p>
+<ol>
+<li>（cx) = (cx) - 1</li>
+<li>判断cx的值，如果不为零则跳至标号处执行程序，为零则继续向下执行。</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># 使用方法</span><br><span class="line">mov cx, 循环次数</span><br><span class="line">s:</span><br><span class="line">  循环执行的代码段</span><br><span class="line">  loop s</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><strong>note</strong> : loop指令实现循环功能，cx存放循环次数</p>
+</blockquote>
+<h2 id="段前缀"><a href="#段前缀" class="headerlink" title="段前缀"></a>段前缀</h2><p>在指令“mov ax, [bx]”中，段地址默认在ds中，我们可以在访问内存单元的指令中显示地给出内存单元所在的段地址。比如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mov ax, cs:[bx]</span><br><span class="line">mov ax, ss:[bx]</span><br></pre></td></tr></table></figure></p>
+<p><strong>cs:、ss:</strong>这些显示给出段地址的在汇编语言中被称为<strong>段前缀</strong></p>
 
       
     </div>
@@ -395,7 +393,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/deeplearning/" rel="tag"><i class="fa fa-tag"></i>deeplearning</a>
+            <a href="/tags/notes/" rel="tag"><i class="fa fa-tag"></i>notes</a>
+          
+            <a href="/tags/assembly-language/" rel="tag"><i class="fa fa-tag"></i>assembly language</a>
           
         </div>
       
@@ -408,8 +408,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/03/24/hello-blog/" rel="next" title="hello, blog">
-                <i class="fa fa-chevron-left"></i> hello, blog
+              <a href="/2018/05/23/每周分享第一周/" rel="next" title="每周分享第一周">
+                <i class="fa fa-chevron-left"></i> 每周分享第一周
               </a>
             
           </div>
@@ -417,10 +417,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/04/06/dropout正则化/" rel="prev" title="dropout正则化">
-                dropout正则化 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -563,7 +559,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#介绍"><span class="nav-number">1.</span> <span class="nav-text">介绍</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#实现"><span class="nav-number">2.</span> <span class="nav-text">实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#公式"><span class="nav-number">2.1.</span> <span class="nav-text">公式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#解释"><span class="nav-number">2.2.</span> <span class="nav-text">解释</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#加上正则化项后如何实现实现梯度下降"><span class="nav-number">2.3.</span> <span class="nav-text">加上正则化项后如何实现实现梯度下降</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#为什么正则化可以降低方差"><span class="nav-number">2.4.</span> <span class="nav-text">为什么正则化可以降低方差</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#直观上理解"><span class="nav-number">2.4.1.</span> <span class="nav-text">直观上理解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#下面以tanh为激活函数为例子"><span class="nav-number">2.4.2.</span> <span class="nav-text">下面以tanh为激活函数为例子</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#问题"><span class="nav-number">2.4.3.</span> <span class="nav-text">问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#注意事项"><span class="nav-number">2.4.4.</span> <span class="nav-text">注意事项</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考资料"><span class="nav-number">2.4.5.</span> <span class="nav-text">参考资料</span></a></li></ol></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#伪指令"><span class="nav-number">1.</span> <span class="nav-text">伪指令</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#segment和ends"><span class="nav-number">1.1.</span> <span class="nav-text">segment和ends</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#end"><span class="nav-number">1.2.</span> <span class="nav-text">end</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#assume"><span class="nav-number">1.3.</span> <span class="nav-text">assume</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#db、dw、dd"><span class="nav-number">1.4.</span> <span class="nav-text">db、dw、dd</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DOS系统中-exe文件程序的加载过程"><span class="nav-number">2.</span> <span class="nav-text">DOS系统中.exe文件程序的加载过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#loop指令和CX寄存器"><span class="nav-number">3.</span> <span class="nav-text">loop指令和CX寄存器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#段前缀"><span class="nav-number">4.</span> <span class="nav-text">段前缀</span></a></li></ol></div>
             
 
           </div>
