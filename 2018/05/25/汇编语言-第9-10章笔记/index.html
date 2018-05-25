@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="转移指令jmp指令jmp 为无条件转移指令，可以只修改IP，也可以同时修改CS和IPjmp指令要给出的两种信息：  转移的目的地址 转移的距离（段间距离、段内短距离、段内近距离）根据位移转移的jmp指令jmp short 标号（转到标号处执行指令）这种格式实现的是段内短转移，位移范围为8位（-128~127）jmp near ptr 标号与jmp short 标号相似，实现段内近转移，位移范围为1">
+<meta name="description" content="转移指令jmp指令jmp 为无条件转移指令，可以只修改IP，也可以同时修改CS和IPjmp指令要给出的两种信息：  转移的目的地址 转移的距离（段间距离、段内短距离、段内近距离）  根据位移转移的jmp指令jmp short 标号（转到标号处执行指令）这种格式实现的是段内短转移，位移范围为8位（-128~127） jmp near ptr 标号与jmp short 标号相似，实现段内近转移，位移范">
 <meta name="keywords" content="notes,assembly language">
 <meta property="og:type" content="article">
 <meta property="og:title" content="&lt;&lt;汇编语言&gt;&gt;第9~10章笔记">
 <meta property="og:url" content="http://yoursite.com/2018/05/25/汇编语言-第9-10章笔记/index.html">
 <meta property="og:site_name" content="我的博客">
-<meta property="og:description" content="转移指令jmp指令jmp 为无条件转移指令，可以只修改IP，也可以同时修改CS和IPjmp指令要给出的两种信息：  转移的目的地址 转移的距离（段间距离、段内短距离、段内近距离）根据位移转移的jmp指令jmp short 标号（转到标号处执行指令）这种格式实现的是段内短转移，位移范围为8位（-128~127）jmp near ptr 标号与jmp short 标号相似，实现段内近转移，位移范围为1">
+<meta property="og:description" content="转移指令jmp指令jmp 为无条件转移指令，可以只修改IP，也可以同时修改CS和IPjmp指令要给出的两种信息：  转移的目的地址 转移的距离（段间距离、段内短距离、段内近距离）  根据位移转移的jmp指令jmp short 标号（转到标号处执行指令）这种格式实现的是段内短转移，位移范围为8位（-128~127） jmp near ptr 标号与jmp short 标号相似，实现段内近转移，位移范">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-05-25T07:34:35.364Z">
+<meta property="og:updated_time" content="2018-05-25T07:39:58.593Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="&lt;&lt;汇编语言&gt;&gt;第9~10章笔记">
-<meta name="twitter:description" content="转移指令jmp指令jmp 为无条件转移指令，可以只修改IP，也可以同时修改CS和IPjmp指令要给出的两种信息：  转移的目的地址 转移的距离（段间距离、段内短距离、段内近距离）根据位移转移的jmp指令jmp short 标号（转到标号处执行指令）这种格式实现的是段内短转移，位移范围为8位（-128~127）jmp near ptr 标号与jmp short 标号相似，实现段内近转移，位移范围为1">
+<meta name="twitter:description" content="转移指令jmp指令jmp 为无条件转移指令，可以只修改IP，也可以同时修改CS和IPjmp指令要给出的两种信息：  转移的目的地址 转移的距离（段间距离、段内短距离、段内近距离）  根据位移转移的jmp指令jmp short 标号（转到标号处执行指令）这种格式实现的是段内短转移，位移范围为8位（-128~127） jmp near ptr 标号与jmp short 标号相似，实现段内近转移，位移范">
 
 
 
@@ -333,8 +333,10 @@
         <h2 id="转移指令"><a href="#转移指令" class="headerlink" title="转移指令"></a>转移指令</h2><h3 id="jmp指令"><a href="#jmp指令" class="headerlink" title="jmp指令"></a>jmp指令</h3><p>jmp 为无条件转移指令，可以只修改IP，也可以同时修改CS和IP<br>jmp指令要给出的两种信息：</p>
 <ol>
 <li>转移的目的地址</li>
-<li>转移的距离（段间距离、段内短距离、段内近距离）<h4 id="根据位移转移的jmp指令"><a href="#根据位移转移的jmp指令" class="headerlink" title="根据位移转移的jmp指令"></a>根据位移转移的jmp指令</h4><h5 id="jmp-short-标号（转到标号处执行指令）"><a href="#jmp-short-标号（转到标号处执行指令）" class="headerlink" title="jmp short 标号（转到标号处执行指令）"></a>jmp short 标号（转到标号处执行指令）</h5>这种格式实现的是段内短转移，位移范围为8位（-128~127）<h5 id="jmp-near-ptr-标号"><a href="#jmp-near-ptr-标号" class="headerlink" title="jmp near ptr 标号"></a>jmp near ptr 标号</h5>与<code>jmp short 标号</code>相似，实现段内近转移，位移范围为16位（-32768~32767）</li>
+<li>转移的距离（段间距离、段内短距离、段内近距离）</li>
 </ol>
+<h4 id="根据位移转移的jmp指令"><a href="#根据位移转移的jmp指令" class="headerlink" title="根据位移转移的jmp指令"></a>根据位移转移的jmp指令</h4><h5 id="jmp-short-标号（转到标号处执行指令）"><a href="#jmp-short-标号（转到标号处执行指令）" class="headerlink" title="jmp short 标号（转到标号处执行指令）"></a>jmp short 标号（转到标号处执行指令）</h5><p>这种格式实现的是段内短转移，位移范围为8位（-128~127）</p>
+<h5 id="jmp-near-ptr-标号"><a href="#jmp-near-ptr-标号" class="headerlink" title="jmp near ptr 标号"></a>jmp near ptr 标号</h5><p>与<code>jmp short 标号</code>相似，实现段内近转移，位移范围为16位（-32768~32767）</p>
 <blockquote>
 <p><strong>note</strong> : 以上两种格式的jmp指令CPU在执行时并不需要转移的目的地址，只需要由编译器计算出两点的位移量</p>
 </blockquote>
@@ -352,7 +354,7 @@
 <li>将当前IP或CS和IP压入栈中;</li>
 <li>转移</li>
 </ol>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># 使用格式   </span><br><span class="line">call 标号 # 实现段内近转移r</span><br><span class="line">call far ptr 标号 # 是实现段间远转移</span><br><span class="line">## 转移地址在内存中的call指令</span><br><span class="line">call word ptr 内存单元地址 # 实现段内近转移</span><br><span class="line">call dword ptr 内存单元地址 # 实现段间远转移</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># 使用格式   </span><br><span class="line">call 标号 # 实现段内近转移</span><br><span class="line">call far ptr 标号 # 是实现段间远转移</span><br><span class="line">## 转移地址在内存中的call指令</span><br><span class="line">call word ptr 内存单元地址 # 实现段内近转移</span><br><span class="line">call dword ptr 内存单元地址 # 实现段间远转移</span><br></pre></td></tr></table></figure>
 
       
     </div>

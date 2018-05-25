@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="and 和 or 指令1.and指令：将可操作对象的相应位设为0，其它位不变。123mov al, 01100011Band al, 00111011B# 执行后al = 00100011B  or指令：将可操作对象的相应位设为1，其他位不变123mov al, 01100011Bor al,  00111011B# 执行后：al = 01111011B   利用and和or指令进行巧妙的大小写转">
+<meta name="description" content="and 和 or 指令 and指令：将可操作对象的相应位设为0，其它位不变。 123mov al, 01100011Band al, 00111011B# 执行后al = 00100011B  or指令：将可操作对象的相应位设为1，其他位不变 123mov al, 01100011Bor al,  00111011B# 执行后：al = 01111011B   利用and和or指令进行巧妙的大小写">
 <meta name="keywords" content="notes,assembly language">
 <meta property="og:type" content="article">
 <meta property="og:title" content="&lt;&lt;汇编语言&gt;&gt;第7~8章笔记">
 <meta property="og:url" content="http://yoursite.com/2018/05/24/汇编语言-第7-8章笔记/index.html">
 <meta property="og:site_name" content="我的博客">
-<meta property="og:description" content="and 和 or 指令1.and指令：将可操作对象的相应位设为0，其它位不变。123mov al, 01100011Band al, 00111011B# 执行后al = 00100011B  or指令：将可操作对象的相应位设为1，其他位不变123mov al, 01100011Bor al,  00111011B# 执行后：al = 01111011B   利用and和or指令进行巧妙的大小写转">
+<meta property="og:description" content="and 和 or 指令 and指令：将可操作对象的相应位设为0，其它位不变。 123mov al, 01100011Band al, 00111011B# 执行后al = 00100011B  or指令：将可操作对象的相应位设为1，其他位不变 123mov al, 01100011Bor al,  00111011B# 执行后：al = 01111011B   利用and和or指令进行巧妙的大小写">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-05-25T07:34:33.603Z">
+<meta property="og:updated_time" content="2018-05-25T07:38:37.754Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="&lt;&lt;汇编语言&gt;&gt;第7~8章笔记">
-<meta name="twitter:description" content="and 和 or 指令1.and指令：将可操作对象的相应位设为0，其它位不变。123mov al, 01100011Band al, 00111011B# 执行后al = 00100011B  or指令：将可操作对象的相应位设为1，其他位不变123mov al, 01100011Bor al,  00111011B# 执行后：al = 01111011B   利用and和or指令进行巧妙的大小写转">
+<meta name="twitter:description" content="and 和 or 指令 and指令：将可操作对象的相应位设为0，其它位不变。 123mov al, 01100011Band al, 00111011B# 执行后al = 00100011B  or指令：将可操作对象的相应位设为1，其他位不变 123mov al, 01100011Bor al,  00111011B# 执行后：al = 01111011B   利用and和or指令进行巧妙的大小写">
 
 
 
@@ -330,9 +330,12 @@
       
 
       
-        <h2 id="and-和-or-指令"><a href="#and-和-or-指令" class="headerlink" title="and 和 or 指令"></a>and 和 or 指令</h2><p>1.and指令：将可操作对象的相应位设为0，其它位不变。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mov al, 01100011B</span><br><span class="line">and al, 00111011B</span><br><span class="line"># 执行后al = 00100011B</span><br></pre></td></tr></table></figure></p>
-<ol>
-<li>or指令：将可操作对象的相应位设为1，其他位不变<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mov al, 01100011B</span><br><span class="line">or al,  00111011B</span><br><span class="line"># 执行后：al = 01111011B</span><br></pre></td></tr></table></figure>
+        <h2 id="and-和-or-指令"><a href="#and-和-or-指令" class="headerlink" title="and 和 or 指令"></a>and 和 or 指令</h2><ol>
+<li><p>and指令：将可操作对象的相应位设为0，其它位不变。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mov al, 01100011B</span><br><span class="line">and al, 00111011B</span><br><span class="line"># 执行后al = 00100011B</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>or指令：将可操作对象的相应位设为1，其他位不变</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mov al, 01100011B</span><br><span class="line">or al,  00111011B</span><br><span class="line"># 执行后：al = 01111011B</span><br></pre></td></tr></table></figure>
 </li>
 </ol>
 <h3 id="利用and和or指令进行巧妙的大小写转化"><a href="#利用and和or指令进行巧妙的大小写转化" class="headerlink" title="利用and和or指令进行巧妙的大小写转化"></a>利用and和or指令进行巧妙的大小写转化</h3><p>对ASCII码的二进制形式进行观察，可以看出大写字母的第五位为0，小写字母的第五位为1。<br>这样利用and和or指令就可以进行大小写转化了<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># 示例</span><br><span class="line">or  al, 00100000B # 转化成小写字符</span><br><span class="line">and al, 11011111B # 转化成大写字符</span><br></pre></td></tr></table></figure></p>
