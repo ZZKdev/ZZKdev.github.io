@@ -91,7 +91,7 @@
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/10461798-f4e2431f0527146e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/10461798-d5281956396d570f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/10461798-e3ae17eaa6dcec73.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2018-08-28T14:23:56.314Z">
+<meta property="og:updated_time" content="2018-08-28T14:51:34.315Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="硬件hacker用digispark制作BadUSB">
 <meta name="twitter:description" content="BadUSB是什么？BadUSB是一种通过重写U盘固件伪装成USB输入设备（键盘，网卡）用于恶意用途的usb设备，这种攻击方式十分猥琐，杀毒软件由于无法接触到usb固件，所以对它也无可奈何，你总不能拒绝你的键盘吧。。。  使用工具 digispark 开发板（可以再某宝上购买9块一个）    arduino IDE digispark驱动步骤首先把我们的开发工具下好arduino IDE下载dig">
@@ -373,7 +373,7 @@
 <p><img src="https://upload-images.jianshu.io/upload_images/10461798-d5281956396d570f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
 <p>现在插入digispark开发板后，它会自动打开cmd，并打印一句hacked！</p>
 <p><img src="https://upload-images.jianshu.io/upload_images/10461798-e3ae17eaa6dcec73.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
-<p>现在我们已经制作完成了我们的badUSB，虽然它现在并不具备什么攻击功能⚆_⚆，但是我们只要对代码进行简单的修改就可以做到植入后门啊，拿wifi密码啊，开远程端口啊什么的，具体的代码在这里就不提供了，不过可以到下面链接查看攻击代码并尝试翻译成arduino的代码（也可以用脚本翻译，具体操作大家搜索一下就有了）<br><a href="https://github.com/hak5darren/USB-Rubber-Ducky/wiki/Payloads" target="_blank" rel="noopener">https://github.com/hak5darren/USB-Rubber-Ducky/wiki/Payloads</a></p>
+<p>现在我们已经制作完成了我们的badUSB，虽然它现在并不具备什么攻击功能⚆_⚆，但是我们只要对代码进行简单的修改就可以做到植入后门啊，拿wifi密码啊，开远程端口啊什么的，具体的代码在这里就不提供了，不过可以到下面链接查看攻击代码并尝试翻译成arduino的代码（也可以用脚本翻译，具体操作大家搜索一下就有了）（简单点你可以把代码中的“cmd”，换成”shutdown /s /t 1”再把下面两行删除，就可以实现插上去电脑关机的功能啦）<br><a href="https://github.com/hak5darren/USB-Rubber-Ducky/wiki/Payloads" target="_blank" rel="noopener">https://github.com/hak5darren/USB-Rubber-Ducky/wiki/Payloads</a></p>
 <p>搞完之后可以去3d打印给你的badUSB换一个好看的外壳，毕竟光一块板子直接插你电脑上一看就很可疑Ծ‸Ծ</p>
 <h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>以后在外面捡到u盘不要随便往电脑上插！！(´°̥̥̥̥̥̥̥̥ω°̥̥̥̥̥̥̥̥｀)。甚至有可能插完之后你的电脑就报废了（如果是usbkill的话）</p>
 
