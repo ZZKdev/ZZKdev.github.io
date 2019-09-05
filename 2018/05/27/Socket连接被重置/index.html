@@ -81,7 +81,7 @@
 <meta property="og:site_name" content="我的博客">
 <meta property="og:description" content="一个神奇的bug用c语言搭建了一个类似http服务器的东西，在返回response后，游览器连接被重置。 原因分析第一次尝试试了一下不关闭socket连接，果然连接没有被重置，但是页面一直在加载中。。。。 百度之后查询到原因可能是服务器关闭连接时不太优雅，导致数据包没发完就关闭连接了。。 解决方法使用int shutdown(int sockfd,int how)函数确保输出缓冲区的数据全部发出。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-09-05T06:56:47.308Z">
+<meta property="og:updated_time" content="2019-09-05T07:24:07.219Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Socket连接被重置">
 <meta name="twitter:description" content="一个神奇的bug用c语言搭建了一个类似http服务器的东西，在返回response后，游览器连接被重置。 原因分析第一次尝试试了一下不关闭socket连接，果然连接没有被重置，但是页面一直在加载中。。。。 百度之后查询到原因可能是服务器关闭连接时不太优雅，导致数据包没发完就关闭连接了。。 解决方法使用int shutdown(int sockfd,int how)函数确保输出缓冲区的数据全部发出。">
@@ -303,18 +303,6 @@
           
 
           
-          
-             <span id="/2018/05/27/Socket连接被重置/" class="leancloud_visitors" data-flag-title="Socket连接被重置">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">热度&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-		 <span>�?</span>
-             </span>
           
 
           
@@ -793,113 +781,6 @@
 
 
   
-
-  
-  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
-  <script>AV.initialize("cvaMApYPpuQCoFrDQoMF0ct8-gzGzoHsz", "VFRMQmgtar9FaoX4yPy6ieLE");</script>
-  <script>
-    function showTime(Counter) {
-      var query = new AV.Query(Counter);
-      var entries = [];
-      var $visitors = $(".leancloud_visitors");
-
-      $visitors.each(function () {
-        entries.push( $(this).attr("id").trim() );
-      });
-
-      query.containedIn('url', entries);
-      query.find()
-        .done(function (results) {
-          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
-
-          if (results.length === 0) {
-            $visitors.find(COUNT_CONTAINER_REF).text(0);
-            return;
-          }
-
-          for (var i = 0; i < results.length; i++) {
-            var item = results[i];
-            var url = item.get('url');
-            var time = item.get('time');
-            var element = document.getElementById(url);
-
-            $(element).find(COUNT_CONTAINER_REF).text(time);
-          }
-          for(var i = 0; i < entries.length; i++) {
-            var url = entries[i];
-            var element = document.getElementById(url);
-            var countSpan = $(element).find(COUNT_CONTAINER_REF);
-            if( countSpan.text() == '') {
-              countSpan.text(0);
-            }
-          }
-        })
-        .fail(function (object, error) {
-          console.log("Error: " + error.code + " " + error.message);
-        });
-    }
-
-    function addCount(Counter) {
-      var $visitors = $(".leancloud_visitors");
-      var url = $visitors.attr('id').trim();
-      var title = $visitors.attr('data-flag-title').trim();
-      var query = new AV.Query(Counter);
-
-      query.equalTo("url", url);
-      query.find({
-        success: function(results) {
-          if (results.length > 0) {
-            var counter = results[0];
-            counter.fetchWhenSave(true);
-            counter.increment("time");
-            counter.save(null, {
-              success: function(counter) {
-                var $element = $(document.getElementById(url));
-                $element.find('.leancloud-visitors-count').text(counter.get('time'));
-              },
-              error: function(counter, error) {
-                console.log('Failed to save Visitor num, with error message: ' + error.message);
-              }
-            });
-          } else {
-            var newcounter = new Counter();
-            /* Set ACL */
-            var acl = new AV.ACL();
-            acl.setPublicReadAccess(true);
-            acl.setPublicWriteAccess(true);
-            newcounter.setACL(acl);
-            /* End Set ACL */
-            newcounter.set("title", title);
-            newcounter.set("url", url);
-            newcounter.set("time", 1);
-            newcounter.save(null, {
-              success: function(newcounter) {
-                var $element = $(document.getElementById(url));
-                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
-              },
-              error: function(newcounter, error) {
-                console.log('Failed to create');
-              }
-            });
-          }
-        },
-        error: function(error) {
-          console.log('Error:' + error.code + " " + error.message);
-        }
-      });
-    }
-
-    $(function() {
-      var Counter = AV.Object.extend("Counter");
-      if ($('.leancloud_visitors').length == 1) {
-        addCount(Counter);
-      } else if ($('.post-title-link').length > 1) {
-        showTime(Counter);
-      }
-    });
-  </script>
-
-
 
   
 
