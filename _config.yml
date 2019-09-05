@@ -84,3 +84,12 @@ deploy:
 
 #头像
 avatar: /images/avatar.png
+
+
+# rss 
+feed:
+    type: atom
+    path: atom.xml
+    limit: 20
+    content_limit: 140
+    order_by: -date
