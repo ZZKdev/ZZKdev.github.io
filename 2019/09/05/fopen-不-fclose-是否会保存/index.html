@@ -83,7 +83,7 @@
 <meta property="og:site_name" content="我的博客">
 <meta property="og:description" content="前言这个问题起源于我和同学的一次打赌，在我过去的认知中文件用 fopen 打开后就一定要用 fclose 关闭，否则将不能保存写入的内容，写入的数据会存留在缓冲区中。但是经过实际测验后，不用 fclose 写入的内容也能够保存… 痛失一瓶可乐… 在那时，我把它的原因归结于是操作系统自己去保存的没有再深究，今天看到一点别的东西，突然想起来可能那时的想法是错误的，这可能是要归功与编译器，与操作系统无关">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-09-05T07:24:07.219Z">
+<meta property="og:updated_time" content="2019-09-05T10:15:22.990Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="fopen 不 fclose 是否会保存">
 <meta name="twitter:description" content="前言这个问题起源于我和同学的一次打赌，在我过去的认知中文件用 fopen 打开后就一定要用 fclose 关闭，否则将不能保存写入的内容，写入的数据会存留在缓冲区中。但是经过实际测验后，不用 fclose 写入的内容也能够保存… 痛失一瓶可乐… 在那时，我把它的原因归结于是操作系统自己去保存的没有再深究，今天看到一点别的东西，突然想起来可能那时的想法是错误的，这可能是要归功与编译器，与操作系统无关">
@@ -376,7 +376,7 @@
 <p>但是在程序运行结束时你应该会收到以下错误</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[1]    10074 segmentation fault (core dumped)  ./a.out</span><br></pre></td></tr></table></figure>
 <p>出现这个错误是因为我们的程序不像之前我们有启动例程那样会调用 exit 正常退出，你可以自己在末尾加个 exit 或者 _exit 函数。</p>
-<h2 id="底层一点"><a href="#底层一点" class="headerlink" title="底层一点"></a>底层一点</h2><p><code>fopen</code> 函数底层调用<code>open</code>打开指定的文件，返回一个文件描述符（就是一个<code>int</code>类型的编号），分配一个<code>FILE</code>结构体，其中包含该文件的描述符、I/O缓冲区和当前读写位置等信息，返回这个<code>FILE</code>结构体的地址。就是因为 FILE 结构体这个缓冲区的存在我们才需要刷缓冲才能将文件写入，<code>fwrite</code>  <code>fread</code> 都是先看缓冲区是否慢或空才决定使用 <code>write</code> 或 <code>read</code> 的。</p>
+<h2 id="底层一点"><a href="#底层一点" class="headerlink" title="底层一点"></a>底层一点</h2><p><code>fopen</code> 函数底层调用<code>open</code>打开指定的文件，返回一个文件描述符（就是一个<code>int</code>类型的编号），分配一个<code>FILE</code>结构体，其中包含该文件的描述符、I/O缓冲区和当前读写位置等信息，返回这个<code>FILE</code>结构体的地址。就是因为 FILE 结构体这个缓冲区的存在我们才需要刷缓冲才能将文件写入，<code>fwrite</code>  <code>fread</code> 都是先看缓冲区是否满或空才决定使用 <code>write</code> 或 <code>read</code> 的。</p>
 <p>之所以要使用缓冲区，是因为每次 <code>write</code> <code>read</code> 都是一次系统调用要进入内核，调用一个系统调用比用户调用要慢很多，在用户区开辟缓冲区可以有效减少系统调用，提升性能。</p>
 <p><code>open</code>、<code>read</code>、<code>write</code>、<code>close</code> 也称无缓冲 IO，如果我们之前的写入用 <code>write</code> 的话，即使不用 <code>close</code> 或 <code>exit</code> 它也会写进文件里面去，不用刷缓冲。有缓冲这么好，那我们什么时候要用无缓冲 IO 呢？</p>
 <p>通常我们读写设备时通常是不希望有缓冲的，例如向代表网络设备的文件写数据就是希望数据通过网络设备发送出去，而不希望只写到缓冲区里就算完事儿了，当网络设备接收到数据时应用程序也希望第一时间被通知到，所以网络编程通常直接调用Unbuffered I/O函数。</p>
