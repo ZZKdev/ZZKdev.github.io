@@ -6,7 +6,7 @@
 
 
 <html class="theme-next gemini use-motion" lang="zh-Hans">
-<head><meta name="generator" content="Hexo 3.8.0">
+<head><meta name="generator" content="Hexo 3.9.0">
   <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -67,6 +67,8 @@
 
 
 
+
+  <link rel="alternate" href="/atom.xml" title="我的博客" type="application/atom+xml">
 
 
 
@@ -138,7 +140,7 @@
 
 </head>
 
-<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
 
   
   
@@ -148,7 +150,7 @@
   <div class="container sidebar-position-left page-post-detail">
     <div class="headband"></div>
 
-    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
       <div class="header-inner"><div class="site-brand-wrapper">
   <div class="site-meta ">
     
@@ -258,20 +260,20 @@
   
   
 
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
   
   
   
   <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/04/05/L2正则化/">
 
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="ZZKdev">
-      <meta itemprop="description" content="">
+      <meta itemprop="description" content>
       <meta itemprop="image" content="/images/avatar.png">
     </span>
 
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="我的博客">
     </span>
 
@@ -336,9 +338,9 @@
 <li>λ 是正则化参数，通常使用验证集或者交叉验证集来配置这个参数</li>
 <li>其中第二项为正则化项： <img src="https://upload-images.jianshu.io/upload_images/10461798-80c7d439a9b23729.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="正则化项"></li>
 </ul>
-<h2 id="加上正则化项后如何实现实现梯度下降"><a href="#加上正则化项后如何实现实现梯度下降" class="headerlink" title="加上正则化项后如何实现实现梯度下降"></a>加上正则化项后如何实现实现梯度下降</h2><p>反向传播时：<img src="https://upload-images.jianshu.io/upload_images/10461798-e814314464053e83.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""><br>更新参数：<img src="https://upload-images.jianshu.io/upload_images/10461798-7a3ba73006488b09.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""><br>事实上，这相当于我们把矩阵W减去αλ/m倍的它，避免权重矩阵过大，这也时L2正则化有时被叫做权重衰减的原因</p>
+<h2 id="加上正则化项后如何实现实现梯度下降"><a href="#加上正则化项后如何实现实现梯度下降" class="headerlink" title="加上正则化项后如何实现实现梯度下降"></a>加上正则化项后如何实现实现梯度下降</h2><p>反向传播时：<img src="https://upload-images.jianshu.io/upload_images/10461798-e814314464053e83.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt><br>更新参数：<img src="https://upload-images.jianshu.io/upload_images/10461798-7a3ba73006488b09.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt><br>事实上，这相当于我们把矩阵W减去αλ/m倍的它，避免权重矩阵过大，这也时L2正则化有时被叫做权重衰减的原因</p>
 <h2 id="为什么正则化可以降低方差"><a href="#为什么正则化可以降低方差" class="headerlink" title="为什么正则化可以降低方差"></a>为什么正则化可以降低方差</h2><h3 id="直观上理解"><a href="#直观上理解" class="headerlink" title="直观上理解"></a>直观上理解</h3><p>如果正则化λ设置得足够大，权重矩阵W将被设置为接近于0的值，也就是把多个隐藏单元的权重设为0，消除了这些隐藏单元的许多影响。<br>这个大大简化了的神经网络会变成一个很小的网络，小到如同一个逻辑回归单元，可是深度却很大，使过拟合的网络变成更接近高偏差的状态，但是λ会存在一个中间值，使得这个网络维持在一个低方差且偏差不那么高的状态。</p>
-<h3 id="下面以tanh为激活函数为例子"><a href="#下面以tanh为激活函数为例子" class="headerlink" title="下面以tanh为激活函数为例子"></a>下面以tanh为激活函数为例子</h3><p><img src="https://upload-images.jianshu.io/upload_images/10461798-e38f8618c6c52373.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""><br>当λ参数变大时，W矩阵变小，相应地Z矩阵也会变小，使得它维持在中间红色的部分，即相对线性的部分，使得网络更加线性，表达能力减弱，从而实现减低方差的功能</p>
+<h3 id="下面以tanh为激活函数为例子"><a href="#下面以tanh为激活函数为例子" class="headerlink" title="下面以tanh为激活函数为例子"></a>下面以tanh为激活函数为例子</h3><p><img src="https://upload-images.jianshu.io/upload_images/10461798-e38f8618c6c52373.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt><br>当λ参数变大时，W矩阵变小，相应地Z矩阵也会变小，使得它维持在中间红色的部分，即相对线性的部分，使得网络更加线性，表达能力减弱，从而实现减低方差的功能</p>
 <h3 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h3><ul>
 <li>为什么只正则化参数w，不加上参数b？<br>因为w通常是一个高维参数矢量，已经可以表达高方差的问题</li>
 </ul>
@@ -483,7 +485,7 @@
 
       <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
-          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
               <img class="site-author-image" itemprop="image" src="/images/avatar.png" alt="ZZKdev">
             
@@ -519,6 +521,13 @@
 
           </nav>
 
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
           
 
           

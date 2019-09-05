@@ -1,0 +1,463 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>我的博客</title>
+  
+  <subtitle>我每天都好饿啊</subtitle>
+  <link href="/atom.xml" rel="self"/>
+  
+  <link href="http://yoursite.com/"/>
+  <updated>2019-09-05T07:24:07.219Z</updated>
+  <id>http://yoursite.com/</id>
+  
+  <author>
+    <name>ZZKdev</name>
+    
+  </author>
+  
+  <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>fopen 不 fclose 是否会保存</title>
+    <link href="http://yoursite.com/2019/09/05/fopen-%E4%B8%8D-fclose-%E6%98%AF%E5%90%A6%E4%BC%9A%E4%BF%9D%E5%AD%98/"/>
+    <id>http://yoursite.com/2019/09/05/fopen-不-fclose-是否会保存/</id>
+    <published>2019-09-05T06:57:16.000Z</published>
+    <updated>2019-09-05T07:24:07.219Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>这个问题起源于我和同学的一次打赌，在我过去的认知中文件用 <code>fopen</code> 打开后就一定要用 <code>fclose</code> 关闭，否则将不能保存写入的内容，写入的数据会存留在缓冲区中。但是经过实际测验后，不用 <code>fclose</code> 写入的内容也能够保存… 痛失一瓶可乐…</p><p>在那时，我把它的原因归结于是操作系统自己去保存的没有再深究，今天看到一点别的东西，突然想起来可能那时的想法是错误的，这可能是要归功与编译器，与操作系统无关。</p><blockquote><p>ps : 在这里，我只讨论 linux 下 gcc 的情况</p></blockquote><h2 id="main-和-start"><a href="#main-和-start" class="headerlink" title="main 和 _start"></a>main 和 _start</h2><p>可能很多人都不知道，我们的程序执行的入口函数其实并不是 main 函数，而是从 _start 函数开始执行的。</p><p>来我们测验一下，先写一个简单的程序</p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>对的就这么简单就可以了，编译然后用 readelf 命令查看一下程序入口地址</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">gcc example.c -o test.o</span><br><span class="line">readelf -h test.o</span><br></pre></td></tr></table></figure><p>我们得到以下输出</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">ELF 头：</span><br><span class="line">  Magic：  7f 45 4c 46 02 01 01 00 00 00 00 00 00 00 00 00 </span><br><span class="line">  类别:                              ELF64</span><br><span class="line">  数据:                              2 补码，小端序 (little endian)</span><br><span class="line">  Version:                           1 (current)</span><br><span class="line">  OS/ABI:                            UNIX - System V</span><br><span class="line">  ABI 版本:                          0</span><br><span class="line">  类型:                              DYN (共享目标文件)</span><br><span class="line">  系统架构:                          Advanced Micro Devices X86-64</span><br><span class="line">  版本:                              0x1</span><br><span class="line">  入口点地址：              0x1020</span><br><span class="line">  程序头起点：              64 (bytes into file)</span><br><span class="line">  Start of section headers:          14576 (bytes into file)</span><br><span class="line">  标志：             0x0</span><br><span class="line">  Size of this header:               64 (bytes)</span><br><span class="line">  Size of program headers:           56 (bytes)</span><br><span class="line">  Number of program headers:         11</span><br><span class="line">  Size of section headers:           64 (bytes)</span><br><span class="line">  Number of section headers:         27</span><br><span class="line">  Section header string table index: 26</span><br></pre></td></tr></table></figure><p>重点看程序入口地址那一行为 0x1020</p><p>我们将编译后的可执行文件用 objdump 反汇编看看，为了方便我将它输出重定向到文件里面来看</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">objdump -d test.o &gt; test.s</span><br></pre></td></tr></table></figure><p>可以看到 0x1020 这里刚好就是 .text 段的开始也是 _start 函数的入口地地址</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">Disassembly of section .text:</span><br><span class="line">0000000000001020 &lt;_start&gt;:                                                                                                       </span><br><span class="line">1020:   f3 0f 1e fa                         endbr64</span><br><span class="line">1024:   31 ed                                  xor    %ebp,%ebp</span><br><span class="line">1026:   49 89 d1                            mov    %rdx,%r9</span><br><span class="line">1029:   5e                                        pop    %rsi</span><br><span class="line">102a:   48 89 e2                            mov    %rsp,%rdx</span><br><span class="line">102d:   48 83 e4 f0                       and    $0xfffffffffffffff0,%rsp</span><br><span class="line">1031:   50                                        push   %rax</span><br><span class="line">1032:   54                                        push   %rsp</span><br><span class="line">1033:   4c 8d 05 66 01 00 00    lea    0x166(%rip),%r8        # 11a0 &lt;__libc_csu_fini&gt;</span><br><span class="line">103a:   48 8d 0d ef 00 00 00     lea    0xef(%rip),%rcx        # 1130 &lt;__libc_csu_init&gt;</span><br><span class="line">1041:   48 8d 3d d1 00 00 00    lea    0xd1(%rip),%rdi        # 1119 &lt;main&gt;</span><br><span class="line">1048:   ff 15 92 2f 00 00              callq  *0x2f92(%rip)        # 3fe0 &lt;__libc_start_main@GLIBC_2.2.5&gt;</span><br><span class="line">104e:   f4                      hlt</span><br><span class="line">104f:   90                      nop</span><br></pre></td></tr></table></figure><p>现在看来，_start 是入口函数已经是毋庸置疑了，问题是我们的 main 函数去哪里了？</p><h2 id="libc-start-main"><a href="#libc-start-main" class="headerlink" title="__libc_start_main"></a>__libc_start_main</h2><p>在上面一段汇编代码中，我们可以明显地看到 _start 函数调用了一个 __libc_start_main 的函数并且将 main 函数的地址存到了 rdi 寄存器中，答案八九就是在这里了，但是这个函数是动态链接的，我反汇编后并没有得到它的代码…</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1041:   48 8d 3d d1 00 00 00    lea    0xd1(%rip),%rdi        # 1119 &lt;main&gt; 0x1041 + 0xd1 刚好是 main 函数地址</span><br><span class="line">1048:   ff 15 92 2f 00 00              callq  *0x2f92(%rip)        # 3fe0 &lt;__libc_start_main@GLIBC_2.2.5&gt;</span><br></pre></td></tr></table></figure><p>所以我又将它编译了一下，不过这次用静态链接，不然看不到 __libc_start_main 的代码。</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc example.c -o test.o -static</span><br></pre></td></tr></table></figure><p>然后再用 objdump 反编译一下，这次反编译出来足足有 12 万行的汇编…</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">objdump -d test.o &gt; test.s</span><br></pre></td></tr></table></figure><p>然后在反汇编文件里买年直接搜索 &lt;__libc_start_main&gt; 函数，可以找到下面几条关键代码</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">##  具体流程是先将 rdi 寄存器中的 main 函数地址存放到 0x18(%rsp) 位置上，再将地址给寄存器 rax 用 callq 调用</span><br><span class="line">401f6a:   48 89 7c 24 18          mov    %rdi,0x18(%rsp)                                                                   </span><br><span class="line">4023c9:   48 8b 44 24 18          mov    0x18(%rsp),%rax                                                                    </span><br><span class="line">4023ce:   ff d0                   callq  *%rax</span><br><span class="line"># 之后调用了将 main 函数的返回值给 edi 寄存器，调用 exit 函数</span><br><span class="line">4023d0:   89 c7                   mov    %eax,%edi                                                                          </span><br><span class="line">4023d2:   e8 29 5f 00 00          callq  408300 &lt;exit&gt;</span><br></pre></td></tr></table></figure><p>可以看出 main 函数是在 __libc_start_main 函数中调用的。</p><h2 id="exit-和-exit"><a href="#exit-和-exit" class="headerlink" title="exit 和 _exit"></a>exit 和 _exit</h2><p>可以看出编译器在我们编译过程中链接了很多其他的东西，这个和我们之前的问题有什么关系呢？之前的分析可以得到我们的代码还链接了很多别的东西不仅有我们写的，从上面的汇编代码可以看出当我们调用完 main 函数后，__libc_start_main 函数会继续调用 exit 函数，而 exit 函数会<strong>关闭所有打开的流，这将导致写所有被缓冲的输出</strong>，删除用TMPFILE函数建立的所有临时文件。至此我们前面的问题就解决了，原因是调用了 exit 函数导致缓冲都输出到文件里面了。简而言之就是编译器给我们的主程序加了个 exit 函数。下面是大致过程</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">_start:</span><br><span class="line">call __libc_start_main</span><br><span class="line">_call__libc_start_main:</span><br><span class="line">call main</span><br><span class="line">call exit</span><br></pre></td></tr></table></figure><p>说到 exit 就说一下 _exit 吧。</p><p>其实 exit 函数就是对 _exit 函数的一个封装，不过 exit 函数在调用 _exit 函数之前会调用终止程序（终止程序可以通过 atexit 函数注册），清除 IO 缓冲。</p><p>_exit 函数做了三件事：</p><ul><li>关闭属于该进程的所有文件描述符</li><li>进程的任何子进程都由进程 init 继承</li><li>向进程的父节点发送 SIGCHLD 信号</li></ul><p>如果我们将我们的程序这样写</p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    FILE *fp = fopen(<span class="string">"test"</span>, <span class="string">"w"</span>);</span><br><span class="line">   fwrite(<span class="string">"123"</span>, <span class="number">3</span>, <span class="number">1</span>, fp);</span><br><span class="line">   _exit(<span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>则文件内容不会保存。</p><h2 id="纯净的程序"><a href="#纯净的程序" class="headerlink" title="纯净的程序?"></a>纯净的程序?</h2><p>gcc 提供了一系列的参数供我们使用我们也可以用 <code>nostartfiles</code> 指定不链接我们之前分析的启动例程</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc test.c -e main -nostartfiles -o test.o</span><br></pre></td></tr></table></figure><p>其中 -e 是用来指定程序入口的，由于我们现在不链接之前的启动例程所以编译器会找不到 _start 函数，我们必须自己指定一下入口。</p><p>现在可以用 objdump 反汇编看一下我们的程序，你可以看到尤为地简洁，十分纯净</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">objdump -d test.o</span><br></pre></td></tr></table></figure><p>也可以将我们程序里面主函数名字随便换一下，换成 test_main，然后用 gcc 指定入口 test_main，这样我们就创建了一个”没有“主函数的程序但是可以运行的程序了。</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc test.c -e test_main -nostartfiles</span><br></pre></td></tr></table></figure><p>但是在程序运行结束时你应该会收到以下错误</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[1]    10074 segmentation fault (core dumped)  ./a.out</span><br></pre></td></tr></table></figure><p>出现这个错误是因为我们的程序不像之前我们有启动例程那样会调用 exit 正常退出，你可以自己在末尾加个 exit 或者 _exit 函数。</p><h2 id="底层一点"><a href="#底层一点" class="headerlink" title="底层一点"></a>底层一点</h2><p><code>fopen</code> 函数底层调用<code>open</code>打开指定的文件，返回一个文件描述符（就是一个<code>int</code>类型的编号），分配一个<code>FILE</code>结构体，其中包含该文件的描述符、I/O缓冲区和当前读写位置等信息，返回这个<code>FILE</code>结构体的地址。就是因为 FILE 结构体这个缓冲区的存在我们才需要刷缓冲才能将文件写入，<code>fwrite</code>  <code>fread</code> 都是先看缓冲区是否慢或空才决定使用 <code>write</code> 或 <code>read</code> 的。</p><p>之所以要使用缓冲区，是因为每次 <code>write</code> <code>read</code> 都是一次系统调用要进入内核，调用一个系统调用比用户调用要慢很多，在用户区开辟缓冲区可以有效减少系统调用，提升性能。</p><p><code>open</code>、<code>read</code>、<code>write</code>、<code>close</code> 也称无缓冲 IO，如果我们之前的写入用 <code>write</code> 的话，即使不用 <code>close</code> 或 <code>exit</code> 它也会写进文件里面去，不用刷缓冲。有缓冲这么好，那我们什么时候要用无缓冲 IO 呢？</p><p>通常我们读写设备时通常是不希望有缓冲的，例如向代表网络设备的文件写数据就是希望数据通过网络设备发送出去，而不希望只写到缓冲区里就算完事儿了，当网络设备接收到数据时应用程序也希望第一时间被通知到，所以网络编程通常直接调用Unbuffered I/O函数。</p><blockquote><p>PS : 虽然 Unbuffered IO 函数在用户区没有缓冲区，但是内核中会有 IO 缓冲区。</p></blockquote>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;这个问题起源于我和同学的一次打赌，在我过去的认知中文件用 &lt;code&gt;fopen&lt;/code&gt; 打开后就一定要用 &lt;code&gt;fclose&lt;
+      
+    
+    </summary>
+    
+    
+    
+      <category term="c" scheme="http://yoursite.com/tags/c/"/>
+    
+      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>硬件hacker用digispark制作BadUSB</title>
+    <link href="http://yoursite.com/2018/08/28/%E7%A1%AC%E4%BB%B6hacker%E7%94%A8digispark%E5%88%B6%E4%BD%9CBadUSB/"/>
+    <id>http://yoursite.com/2018/08/28/硬件hacker用digispark制作BadUSB/</id>
+    <published>2018-08-28T14:23:01.000Z</published>
+    <updated>2019-09-05T07:24:07.222Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="BadUSB是什么？"><a href="#BadUSB是什么？" class="headerlink" title="BadUSB是什么？"></a>BadUSB是什么？</h1><p>BadUSB是一种通过重写U盘固件伪装成USB输入设备（键盘，网卡）用于恶意用途的usb设备，这种攻击方式十分猥琐，杀毒软件由于无法接触到usb固件，所以对它也无可奈何，你总不能拒绝你的键盘吧。。。</p><p><img src="https://upload-images.jianshu.io/upload_images/10461798-5bea83b4d5667284.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt></p><h1 id="使用工具"><a href="#使用工具" class="headerlink" title="使用工具"></a>使用工具</h1><ol><li>digispark 开发板（可以再某宝上购买9块一个）</li></ol><p><img src="https://upload-images.jianshu.io/upload_images/10461798-6c71aac2ee566bec.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt></p><ol><li>arduino IDE</li><li>digispark驱动<h1 id="步骤"><a href="#步骤" class="headerlink" title="步骤"></a>步骤</h1><h2 id="首先把我们的开发工具下好"><a href="#首先把我们的开发工具下好" class="headerlink" title="首先把我们的开发工具下好"></a>首先把我们的开发工具下好</h2><a href="https://www.arduino.cc/en/Main/Software" target="_blank" rel="noopener">arduino IDE下载</a><br><a href="https://github.com/digistump/DigistumpArduino/releases" target="_blank" rel="noopener">digispark驱动下载</a><h2 id="然后在arduino-IDE加入对digispark开发板的支持"><a href="#然后在arduino-IDE加入对digispark开发板的支持" class="headerlink" title="然后在arduino IDE加入对digispark开发板的支持"></a>然后在arduino IDE加入对digispark开发板的支持</h2>在文件-&gt;首选项中加入附加开发板管理<br><code>http://digistump.com/package_digistump_index.json</code><br><img src="https://upload-images.jianshu.io/upload_images/10461798-d95baecd41f7496b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt></li></ol><p>在工具-&gt;开发板中打开开发板管理器，找到Digistump AVR Boards，然后安装它！这个安装过程可能会有点久如果不开代理的话( &gt;﹏&lt;。)～</p><p><img src="https://upload-images.jianshu.io/upload_images/10461798-523bc692904287d7.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt></p><h2 id="现在就可以开始coding啦！"><a href="#现在就可以开始coding啦！" class="headerlink" title="现在就可以开始coding啦！"></a>现在就可以开始coding啦！</h2><p>其实还没有。。还差一点点，请在工具中选中开发板Digispark (Default - 16.5mHz)┌(ㆆ㉨ㆆ)ʃ<br>现在可以coding了 ʅ(‾◡◝)ʃ </p><p><img src="https://upload-images.jianshu.io/upload_images/10461798-9091afd17ab43493.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt></p><p>在coding之前先解释一下在arduino中的编程，它一开始默认会有两个函数一个是setup()一个是loop()，在插入我们的开发板后，它会执行一次setup()函数，然后循环执行loop()函数。对了还有arduino是使用c语言进行编程的(๑¯◡¯๑)<br>现在将我们的代码写上</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">#include &quot;DigiKeyboard.h&quot;</span><br><span class="line">void setup() &#123;</span><br><span class="line">  // put your setup code here, to run once:</span><br><span class="line">  DigiKeyboard.delay(2000);</span><br><span class="line">  DigiKeyboard.sendKeyStroke(KEY_R, MOD_GUI_LEFT);</span><br><span class="line">  DigiKeyboard.delay(300);</span><br><span class="line">  DigiKeyboard.println(&quot;cmd&quot;);</span><br><span class="line">  DigiKeyboard.delay(300);</span><br><span class="line">  DigiKeyboard.println(&quot;echo hacked&quot;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">void loop() &#123;</span><br><span class="line">  // put your main code here, to run repeatedly:</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>点击验证一下看下有没有错误，虽然我知道没有错误(๑¯◡¯๑)</p><p><img src="https://upload-images.jianshu.io/upload_images/10461798-6340ff80a9f7c516.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt></p><p>太棒了！没有错误no error, no warning（其实我没有试）<br>好我们继续<br>点击上传按钮</p><p><img src="https://upload-images.jianshu.io/upload_images/10461798-7d9338a09aecc434.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt></p><p>如果没有错误的话，然后它会在下方显示</p><p><img src="https://upload-images.jianshu.io/upload_images/10461798-f4e2431f0527146e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt></p><p>然后请在60秒之内插入你准备好的digispark开发板（如果之前就插入了就再插一遍），没问题的话它就会谢谢你(̿▀̿ ̿Ĺ̯̿̿▀̿ ̿)，就像这样</p><p><img src="https://upload-images.jianshu.io/upload_images/10461798-d5281956396d570f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt></p><p>现在插入digispark开发板后，它会自动打开cmd，并打印一句hacked！</p><p><img src="https://upload-images.jianshu.io/upload_images/10461798-e3ae17eaa6dcec73.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt></p><p>现在我们已经制作完成了我们的badUSB，虽然它现在并不具备什么攻击功能⚆_⚆，但是我们只要对代码进行简单的修改就可以做到植入后门啊，拿wifi密码啊，开远程端口啊什么的，具体的代码在这里就不提供了，不过可以到下面链接查看攻击代码并尝试翻译成arduino的代码（也可以用脚本翻译，具体操作大家搜索一下就有了）（简单点你可以把代码中的“cmd”，换成”shutdown /s /t 1”再把下面两行删除，就可以实现插上去电脑关机的功能啦）<br><a href="https://github.com/hak5darren/USB-Rubber-Ducky/wiki/Payloads" target="_blank" rel="noopener">https://github.com/hak5darren/USB-Rubber-Ducky/wiki/Payloads</a></p><p>搞完之后可以去3d打印给你的badUSB换一个好看的外壳，毕竟光一块板子直接插你电脑上一看就很可疑Ծ‸Ծ</p><h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>以后在外面捡到u盘不要随便往电脑上插！！(´°̥̥̥̥̥̥̥̥ω°̥̥̥̥̥̥̥̥｀)。甚至有可能插完之后你的电脑就报废了（如果是usbkill的话）</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h1 id=&quot;BadUSB是什么？&quot;&gt;&lt;a href=&quot;#BadUSB是什么？&quot; class=&quot;headerlink&quot; title=&quot;BadUSB是什么？&quot;&gt;&lt;/a&gt;BadUSB是什么？&lt;/h1&gt;&lt;p&gt;BadUSB是一种通过重写U盘固件伪装成USB输入设备（键盘，网卡）用于恶意
+      
+    
+    </summary>
+    
+    
+    
+      <category term="硬件" scheme="http://yoursite.com/tags/%E7%A1%AC%E4%BB%B6/"/>
+    
+      <category term="安全" scheme="http://yoursite.com/tags/%E5%AE%89%E5%85%A8/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>每周分享第二周</title>
+    <link href="http://yoursite.com/2018/06/06/%E6%AF%8F%E5%91%A8%E5%88%86%E4%BA%AB%E7%AC%AC%E4%BA%8C%E5%91%A8/"/>
+    <id>http://yoursite.com/2018/06/06/每周分享第二周/</id>
+    <published>2018-06-06T14:50:34.000Z</published>
+    <updated>2019-09-05T07:24:07.219Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote><p>这里记录过去一周，我看到的值得分享的东西.</p></blockquote><h4 id="专栏"><a href="#专栏" class="headerlink" title="专栏"></a>专栏</h4><p><a href="https://zhuanlan.zhihu.com/p/33188258" target="_blank" rel="noopener">如何造一台电脑？</a></p><h4 id="博客"><a href="#博客" class="headerlink" title="博客"></a>博客</h4><p><a href="http://www.ruanyifeng.com/blog/2018/06/weekly-issue-7.html" target="_blank" rel="noopener">阮一峰每周分享第 7 期</a><br><a href="http://mindhacks.cn/2008/09/21/the-magical-bayesian-method/" target="_blank" rel="noopener">平凡而又神奇的贝叶斯方法</a></p><h4 id="文章"><a href="#文章" class="headerlink" title="文章"></a>文章</h4><p><a href="https://zhuanlan.zhihu.com/p/35590951" target="_blank" rel="noopener">不戴眼镜就听不清？Google用视觉信号做语音分离</a><br><a href="https://zhuanlan.zhihu.com/p/35170379" target="_blank" rel="noopener">如何高效读论文？</a><br><a href="https://zhuanlan.zhihu.com/p/33662908" target="_blank" rel="noopener">windows美化手册</a></p><h4 id="网站"><a href="#网站" class="headerlink" title="网站"></a>网站</h4><p><a href="https://www.discoverdev.io/" target="_blank" rel="noopener">DiscoverDev.io</a><br>每天列出5～10篇当天值得阅读的软件文章</p><h4 id="开源项目"><a href="#开源项目" class="headerlink" title="开源项目"></a>开源项目</h4><p><a href="https://github.com/zhongyang219/TrafficMonitor" target="_blank" rel="noopener">TrafficMonotor</a><br>Traffic Monitor是一款用于Windows平台的网速监控悬浮窗软件，可以显示当前网速、CPU及内存利用率，支持嵌入到任务栏显示，支持更换皮肤、历史流量统计等功能。<br><a href="https://github.com/CuberL/swipe-workspace" target="_blank" rel="noopener">swipe-workspace</a><br>一个可以使用触摸板切换工作区的程序。<br><a href="https://github.com/farzaa/DeepLeague" target="_blank" rel="noopener">DeepLeague</a><br>在英雄联盟迷你地图上利用计算机视觉、深度学习和超过10万张标记图像的数据集在电子竞技中做AI研究<br><a href="https://github.com/pipiliang/hello-comic" target="_blank" rel="noopener">hello-comic</a><br>收集和程序员有关的漫画<br><a href="https://github.com/dbcli/mycli" target="_blank" rel="noopener">mycli</a><br>MySQL自动补全和语法高亮功能的终端插件<br><a href="https://github.com/Swordfish90/cool-retro-term" target="_blank" rel="noopener">cool-retro-term</a><br>一个超级超级炫酷的终端</p><p><img src="https://upload-images.jianshu.io/upload_images/10461798-09fdbfc4aeff6d83.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt></p><h4 id="教程"><a href="#教程" class="headerlink" title="教程"></a>教程</h4><p><a href="https://github.com/cstack/db_tutorial" target="_blank" rel="noopener">db_tutorial</a><br>用C从头开始编写一个小型的数据库<br><a href="https://github.com/zeeshanu/learn-regex" target="_blank" rel="noopener">learn-regex</a><br>以简单的方式学习正则表达式, 内带在线练习<br><a href="https://github.com/wsdjeg/vim-galore-zh_cn" target="_blank" rel="noopener">vim-galore-zh_cn</a><br>Vim galore 中文翻译，构建 Vim 知识体系<br><a href="https://github.com/HT524/500LineorLess_CN" target="_blank" rel="noopener">500LineorLess_CN</a><br>小于五百行的python小项目，每一个都是大神制作，精品~<br><a href="https://github.com/zmrenwu/django-blog-tutorial" target="_blank" rel="noopener">django-blog-tutorial</a><br>免费、中文、零基础，完整的项目，基于最新版 Django 1.10 和 Python 3.5。带你从零开始一步步开发属于自己的博客网站，帮助你以最快的速度掌握 Django 开发的技巧。<br><a href="https://www.bilibili.com/video/av21376839?share_medium=android&amp;share_source=weixin&amp;bbid=C1275877-99CA-48A8-A237-15AB531B2EE113526infoc&amp;ts=1527859474711" target="_blank" rel="noopener">计算机科学速成课</a><br>几乎计算机的各个领域都有涉及到，每个视频的时长也就10分钟不会让人感到很鼓噪，而且也讲的不错<br><a href="https://www.bilibili.com/video/av21932890?share_medium=android&amp;share_source=weixin&amp;bbid=C1275877-99CA-48A8-A237-15AB531B2EE113526infoc&amp;ts=1527859618108" target="_blank" rel="noopener">电路原理</a><br>学堂在线上的电路原理</p><h4 id="资料"><a href="#资料" class="headerlink" title="资料"></a>资料</h4><p><a href="https://github.com/jobbole/awesome-c-cn" target="_blank" rel="noopener">awesome-c-cn</a><br>C 资源大全中文版，包括了：构建系统、编译器、数据库、加密、初中高的教程/指南、书籍、库等。<br><a href="https://github.com/stanzhai/be-a-professional-programmer" target="_blank" rel="noopener">be-a-professional-programmer</a><br>成为专业程序员路上用到的各种优秀资料、神器及框架<br><a href="https://github.com/jaywcjlove/linux-command" target="_blank" rel="noopener">linux-command</a><br>Linux命令大全搜索工具，内容包含Linux命令手册、详解、学习、搜集<br><a href="https://github.com/yangyangwithgnu/the_new_world_linux" target="_blank" rel="noopener">the_new_world_linux</a><br>美丽新世界：linux 下的惬意生活, 教你怎么折腾linux</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;blockquote&gt;
+&lt;p&gt;这里记录过去一周，我看到的值得分享的东西.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h4 id=&quot;专栏&quot;&gt;&lt;a href=&quot;#专栏&quot; class=&quot;headerlink&quot; title=&quot;专栏&quot;&gt;&lt;/a&gt;专栏&lt;/h4&gt;&lt;p&gt;&lt;a href=&quot;https
+      
+    
+    </summary>
+    
+    
+    
+      <category term="share" scheme="http://yoursite.com/tags/share/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>遇到的编码问题</title>
+    <link href="http://yoursite.com/2018/06/06/%E9%81%87%E5%88%B0%E7%9A%84%E7%BC%96%E7%A0%81%E9%97%AE%E9%A2%98/"/>
+    <id>http://yoursite.com/2018/06/06/遇到的编码问题/</id>
+    <published>2018-06-06T14:49:53.000Z</published>
+    <updated>2019-09-05T07:24:07.222Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">char *str = &quot;try try try&quot;;</span><br></pre></td></tr></table></figure><p>将其保存为utf-8格式，按utf-8格式打印是乱码</p><h3 id="怎么解决"><a href="#怎么解决" class="headerlink" title="怎么解决"></a>怎么解决</h3><p>这样定义的字符串还是为gbk编码，按utf-8保存也只是将文件保存为utf-8格式的文件，并不能将字符串转化成utf-8格式。<br>换一下定义方式就可以解决<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">char     a[] = &quot;xxx&quot;;      // 由编译器决定，在简体中文版的vs下为gbk编码</span><br><span class="line">wchar_t  b[] = L&quot;xxx&quot;;  // 宽字符，编码不确定，在VC中为UTF16，gcc为UTF32</span><br><span class="line">char     c[] = u8&quot;xxx&quot;;     // utf8编码</span><br><span class="line">char16_t d[] = u&quot;xxx&quot;  // UTF-16编码</span><br><span class="line">char32_t e[] = U&quot;xxx&quot;  // UTF-32编码</span><br></pre></td></tr></table></figure></p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h3 id=&quot;问题&quot;&gt;&lt;a href=&quot;#问题&quot; class=&quot;headerlink&quot; title=&quot;问题&quot;&gt;&lt;/a&gt;问题&lt;/h3&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span 
+      
+    
+    </summary>
+    
+    
+    
+      <category term="编码" scheme="http://yoursite.com/tags/%E7%BC%96%E7%A0%81/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>&lt;&lt;汇编语言&gt;&gt;第11章笔记</title>
+    <link href="http://yoursite.com/2018/05/27/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80-%E7%AC%AC11%E7%AB%A0%E7%AC%94%E8%AE%B0/"/>
+    <id>http://yoursite.com/2018/05/27/汇编语言-第11章笔记/</id>
+    <published>2018-05-27T07:06:55.000Z</published>
+    <updated>2019-09-05T07:24:07.219Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="标志寄存器"><a href="#标志寄存器" class="headerlink" title="标志寄存器"></a>标志寄存器</h2><p>标志寄存器有以下3种作用：</p><ol><li>用来存储相关指令的某些执行结果</li><li>用来为CPU执行相关指令提供行为依据</li><li>用来控制CPU的相关工作方式</li></ol><blockquote><p><strong>note</strong> : 标志寄存器与其他寄存器不一样，它是按位起作用的，也就是说它每一位都有专门的含义，记录特定信息。</p></blockquote><h3 id="ZF标志"><a href="#ZF标志" class="headerlink" title="ZF标志"></a>ZF标志</h3><p>标志寄存器的第6位是ZF，零标志位。它记录相关指令执行后，其结果是否为0。结果为0的话，那么zf = 1，不为零的话，zf = 0</p><blockquote><p><strong>note</strong> : 有的指令不影响标志寄存器，比如：mov、push、pop等传送指令。</p></blockquote><h3 id="PF标志"><a href="#PF标志" class="headerlink" title="PF标志"></a>PF标志</h3><p>标志寄存器的第2位是PF，奇偶标志位。它记录相关指令执行后，其结果的所有bit位中1的个数是否为偶数。如果1的个数是偶数，PF = 1，奇数则为0。</p><h3 id="SF标志"><a href="#SF标志" class="headerlink" title="SF标志"></a>SF标志</h3><p>标志寄存器的第7位是SF，符号标志位。它记录相关指令执行后，其结果是否为负。如果为负，SF = 1，否则为0。</p><h3 id="CF标志"><a href="#CF标志" class="headerlink" title="CF标志"></a>CF标志</h3><p>标志寄存器的第0位是CF，进位标志位。在做无符号运算时，它记录了最高有效位向更高位的进位制，或从更高位的借位值。</p><h3 id="OF标志"><a href="#OF标志" class="headerlink" title="OF标志"></a>OF标志</h3><p>标志寄存器的第11位是OF，溢出标志位。一般情况下，OF记录了有符号运算的结果是否发生了溢出。如果发生了溢出，OF=1，否则为0。</p><h2 id="adc指令"><a href="#adc指令" class="headerlink" title="adc指令"></a>adc指令</h2><p>adc是带进位的加法指令，它利用了CF位上记录的进位值。<br>指令格式：adc 操作对象1 + 操作对象2 + CF<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># 示例 </span><br><span class="line"># 计算 1EF000H + 201000H，结果放在ax（高16位）和bx中（低16位）</span><br><span class="line">mov ax, 001EH</span><br><span class="line">mov bx, 0F000H</span><br><span class="line">add bx, 1000H</span><br><span class="line">adc ax, 0020H</span><br></pre></td></tr></table></figure></p><h2 id="sbb指令"><a href="#sbb指令" class="headerlink" title="sbb指令"></a>sbb指令</h2><p>sbb指令是带借位的错位减法指令，它利用了CF位上记录的借位值<br>指令格式：sbb 操作对象1, 操作对象2<br>功能：操作对象1 = 操作对象1 - 操作对象2 - CF<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># 示例</span><br><span class="line"># 计算003E1000H - 00202000H，结果放在ax, bx中</span><br><span class="line">mov bx, 1000H</span><br><span class="line">mov ax, 003EH</span><br><span class="line">sub bx, 2000H</span><br><span class="line">sbb ax, 0020H</span><br></pre></td></tr></table></figure></p><h2 id="cmp指令"><a href="#cmp指令" class="headerlink" title="cmp指令"></a>cmp指令</h2><p>cmp是比较指令，cmp功能相当于减法指令，只是不保存结果。cmp指令执行后，将对标志寄存器产生影响。其他指令通过识别被影响的标志寄存器来得知比较结果<br>cmp指令格式：cmp 操作对象1, 操作对象2</p><h2 id="检测比较结果的转移指令"><a href="#检测比较结果的转移指令" class="headerlink" title="检测比较结果的转移指令"></a>检测比较结果的转移指令</h2><p>下面是无符号数的比较结果进行转移的条件转移指令。</p><p><img src="https://upload-images.jianshu.io/upload_images/10461798-d4d9518a43894180.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt></p><h2 id="DF标志和串传送指令"><a href="#DF标志和串传送指令" class="headerlink" title="DF标志和串传送指令"></a>DF标志和串传送指令</h2><p>标志寄存器的第10位是DF，方向标志位。在串处理指令中，控制每次操作后si、di的递减。</p><h3 id="movsb和movsw"><a href="#movsb和movsw" class="headerlink" title="movsb和movsw"></a>movsb和movsw</h3><p><img src="https://upload-images.jianshu.io/upload_images/10461798-f15cf71f2c36d917.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt></p><p>movsw和movsb相似，只是把内存单元还成了以字为单位。<br>movsb和movsw一般都是和rep配合来使用，格式如下：<br><code>rep movsb</code><br>用汇编语法来描述就是：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">s: movsb</span><br><span class="line">    loop s</span><br></pre></td></tr></table></figure></p><p>8086CU提供下面两条指令对df位进行设置。<br>cld指令：将标志寄存器df位置0<br>std指令：将标志寄存器df位置1<br>下面是示例：</p><p><img src="https://upload-images.jianshu.io/upload_images/10461798-6536ed913ea4ff3c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt></p><h2 id="pushf和popf"><a href="#pushf和popf" class="headerlink" title="pushf和popf"></a>pushf和popf</h2><p>pushf是将标志寄存器的值压栈，popf是从栈中弹出数据，送入标志寄存器中。</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h2 id=&quot;标志寄存器&quot;&gt;&lt;a href=&quot;#标志寄存器&quot; class=&quot;headerlink&quot; title=&quot;标志寄存器&quot;&gt;&lt;/a&gt;标志寄存器&lt;/h2&gt;&lt;p&gt;标志寄存器有以下3种作用：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;用来存储相关指令的某些执行结果&lt;/li&gt;
+&lt;li&gt;用来为CPU
+      
+    
+    </summary>
+    
+    
+    
+      <category term="notes" scheme="http://yoursite.com/tags/notes/"/>
+    
+      <category term="assembly language" scheme="http://yoursite.com/tags/assembly-language/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Socket连接被重置</title>
+    <link href="http://yoursite.com/2018/05/27/Socket%E8%BF%9E%E6%8E%A5%E8%A2%AB%E9%87%8D%E7%BD%AE/"/>
+    <id>http://yoursite.com/2018/05/27/Socket连接被重置/</id>
+    <published>2018-05-27T07:04:43.000Z</published>
+    <updated>2019-09-05T07:24:07.219Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="一个神奇的bug"><a href="#一个神奇的bug" class="headerlink" title="一个神奇的bug"></a>一个神奇的bug</h2><p>用c语言搭建了一个类似http服务器的东西，在返回response后，游览器连接被重置。</p><h2 id="原因分析"><a href="#原因分析" class="headerlink" title="原因分析"></a>原因分析</h2><h3 id="第一次尝试"><a href="#第一次尝试" class="headerlink" title="第一次尝试"></a>第一次尝试</h3><p>试了一下不关闭socket连接，果然连接没有被重置，但是页面一直在加载中。。。。</p><h3 id="百度之后"><a href="#百度之后" class="headerlink" title="百度之后"></a>百度之后</h3><p>查询到原因可能是服务器关闭连接时不太优雅，导致数据包没发完就关闭连接了。。</p><h3 id="解决方法"><a href="#解决方法" class="headerlink" title="解决方法"></a>解决方法</h3><p>使用<code>int shutdown(int sockfd,int how)</code>函数确保输出缓冲区的数据全部发出。下面是函数使用方法：<br>int shutdown(SOCKET s, int howto);<br>sock 为需要断开的套接字，howto 为断开方式。<br>howto有以下取值：</p><ul><li>SD_RECEIVE：关闭接收操作，也就是断开输入流。</li><li>SD_SEND：关闭发送操作，也就是断开输出流。</li><li>SD_BOTH：同时关闭接收和发送操作。</li></ul><p>shutdown在操作成功时返回0，在出现错误时返回-1（并置相应errno）<br>如果关闭读，则接受缓冲区的未读出的所有数据都将丢失，以后不会再接受任何数据<br>如果关闭写，如果输出缓冲区内有数据，则所有的数据将发送出去后将发送一个FIN信号<br>而closesocket则是关闭该socket，马上发送FIN信号，所有的未完成发送或者接受的数据都将被丢失.</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># 示例</span><br><span class="line"># 先关闭写，再关闭套接字</span><br><span class="line">shutdown(socket, SD_SEND);</span><br><span class="line">closesocket(socket);</span><br></pre></td></tr></table></figure>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h2 id=&quot;一个神奇的bug&quot;&gt;&lt;a href=&quot;#一个神奇的bug&quot; class=&quot;headerlink&quot; title=&quot;一个神奇的bug&quot;&gt;&lt;/a&gt;一个神奇的bug&lt;/h2&gt;&lt;p&gt;用c语言搭建了一个类似http服务器的东西，在返回response后，游览器连接被重置。&lt;/
+      
+    
+    </summary>
+    
+    
+    
+      <category term="网络编程" scheme="http://yoursite.com/tags/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/"/>
+    
+      <category term="bug" scheme="http://yoursite.com/tags/bug/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>&lt;&lt;汇编语言&gt;&gt;第9~10章笔记</title>
+    <link href="http://yoursite.com/2018/05/25/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80-%E7%AC%AC9-10%E7%AB%A0%E7%AC%94%E8%AE%B0/"/>
+    <id>http://yoursite.com/2018/05/25/汇编语言-第9-10章笔记/</id>
+    <published>2018-05-25T07:26:06.000Z</published>
+    <updated>2019-09-05T07:24:07.222Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="转移指令"><a href="#转移指令" class="headerlink" title="转移指令"></a>转移指令</h2><h3 id="jmp指令"><a href="#jmp指令" class="headerlink" title="jmp指令"></a>jmp指令</h3><p>jmp 为无条件转移指令，可以只修改IP，也可以同时修改CS和IP<br>jmp指令要给出的两种信息：</p><ol><li>转移的目的地址</li><li>转移的距离（段间距离、段内短距离、段内近距离）</li></ol><h4 id="根据位移转移的jmp指令"><a href="#根据位移转移的jmp指令" class="headerlink" title="根据位移转移的jmp指令"></a>根据位移转移的jmp指令</h4><h5 id="jmp-short-标号（转到标号处执行指令）"><a href="#jmp-short-标号（转到标号处执行指令）" class="headerlink" title="jmp short 标号（转到标号处执行指令）"></a>jmp short 标号（转到标号处执行指令）</h5><p>这种格式实现的是段内短转移，位移范围为8位（-128~127）</p><h5 id="jmp-near-ptr-标号"><a href="#jmp-near-ptr-标号" class="headerlink" title="jmp near ptr 标号"></a>jmp near ptr 标号</h5><p>与<code>jmp short 标号</code>相似，实现段内近转移，位移范围为16位（-32768~32767）</p><blockquote><p><strong>note</strong> : 以上两种格式的jmp指令CPU在执行时并不需要转移的目的地址，只需要由编译器计算出两点的位移量</p></blockquote><h4 id="转移的目的地址在指令中的jmp指令"><a href="#转移的目的地址在指令中的jmp指令" class="headerlink" title="转移的目的地址在指令中的jmp指令"></a>转移的目的地址在指令中的jmp指令</h4><h5 id="jmp-far-ptr-标号"><a href="#jmp-far-ptr-标号" class="headerlink" title="jmp far ptr 标号"></a>jmp far ptr 标号</h5><p>实现的是段间转移，又称远转移。同时修改CS和IP。</p><h4 id="转移地址在内存中的jmp指令"><a href="#转移地址在内存中的jmp指令" class="headerlink" title="转移地址在内存中的jmp指令"></a>转移地址在内存中的jmp指令</h4><p>jmp word ptr 内存单元（段内转移）<br>jmp dword ptr 内存单元（段间转移）</p><h3 id="jcxz指令"><a href="#jcxz指令" class="headerlink" title="jcxz指令"></a>jcxz指令</h3><p>条件转移指令，所有条件转移指令都是短转移，在对应机器码包含转移地址，而不是目的地址。对IP修改范围都为：-128~127<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># 示例</span><br><span class="line">#指令格式 </span><br><span class="line">jcxz 标号 #（如果cx = 0, 转到标号处执行）</span><br></pre></td></tr></table></figure></p><blockquote><p><strong>note</strong> : <code>jcxz 标号</code>相当于<code>if((cx) == 0) jmp short 标号;</code></p></blockquote><h2 id="loop指令"><a href="#loop指令" class="headerlink" title="loop指令"></a>loop指令</h2><p>loop指令为循环指令，所有讯号指令都是短转移</p><h2 id="call和ret指令"><a href="#call和ret指令" class="headerlink" title="call和ret指令"></a>call和ret指令</h2><p>两个都是转移指令，它们都修改IP，或同时修改CS和IP，经常被共同用来实现子程序的设计</p><h3 id="ret和retf"><a href="#ret和retf" class="headerlink" title="ret和retf"></a>ret和retf</h3><p>ret指令使用栈中的数据，修改IP的内容，实现近转移。<br>retf指令使用栈中的数据，修改CS和IP的内容，实现远转移<br>CPU执行ret指令时，相当于<code>pop IP</code><br>CPU执行retf指令时，相当于<code>pop IP pop CS</code></p><h3 id="call指令"><a href="#call指令" class="headerlink" title="call指令"></a>call指令</h3><p>CPU执行call指令时，进行两步操作：</p><ol><li>将当前IP或CS和IP压入栈中;</li><li>转移</li></ol><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># 使用格式   </span><br><span class="line">call 标号 # 实现段内近转移</span><br><span class="line">call far ptr 标号 # 是实现段间远转移</span><br><span class="line">## 转移地址在内存中的call指令</span><br><span class="line">call word ptr 内存单元地址 # 实现段内近转移</span><br><span class="line">call dword ptr 内存单元地址 # 实现段间远转移</span><br></pre></td></tr></table></figure>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h2 id=&quot;转移指令&quot;&gt;&lt;a href=&quot;#转移指令&quot; class=&quot;headerlink&quot; title=&quot;转移指令&quot;&gt;&lt;/a&gt;转移指令&lt;/h2&gt;&lt;h3 id=&quot;jmp指令&quot;&gt;&lt;a href=&quot;#jmp指令&quot; class=&quot;headerlink&quot; title=&quot;jmp指令&quot;&gt;
+      
+    
+    </summary>
+    
+    
+    
+      <category term="notes" scheme="http://yoursite.com/tags/notes/"/>
+    
+      <category term="assembly language" scheme="http://yoursite.com/tags/assembly-language/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>&lt;&lt;汇编语言&gt;&gt;第7~8章笔记</title>
+    <link href="http://yoursite.com/2018/05/24/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80-%E7%AC%AC7-8%E7%AB%A0%E7%AC%94%E8%AE%B0/"/>
+    <id>http://yoursite.com/2018/05/24/汇编语言-第7-8章笔记/</id>
+    <published>2018-05-24T15:15:30.000Z</published>
+    <updated>2019-09-05T07:24:07.222Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="and-和-or-指令"><a href="#and-和-or-指令" class="headerlink" title="and 和 or 指令"></a>and 和 or 指令</h2><ol><li><p>and指令：将可操作对象的相应位设为0，其它位不变。</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mov al, 01100011B</span><br><span class="line">and al, 00111011B</span><br><span class="line"># 执行后al = 00100011B</span><br></pre></td></tr></table></figure></li><li><p>or指令：将可操作对象的相应位设为1，其他位不变</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mov al, 01100011B</span><br><span class="line">or al,  00111011B</span><br><span class="line"># 执行后：al = 01111011B</span><br></pre></td></tr></table></figure></li></ol><h3 id="利用and和or指令进行巧妙的大小写转化"><a href="#利用and和or指令进行巧妙的大小写转化" class="headerlink" title="利用and和or指令进行巧妙的大小写转化"></a>利用and和or指令进行巧妙的大小写转化</h3><p>对ASCII码的二进制形式进行观察，可以看出大写字母的第五位为0，小写字母的第五位为1。<br>这样利用and和or指令就可以进行大小写转化了<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># 示例</span><br><span class="line">or  al, 00100000B # 转化成小写字符</span><br><span class="line">and al, 11011111B # 转化成大写字符</span><br></pre></td></tr></table></figure></p><h2 id="si和di寄存器"><a href="#si和di寄存器" class="headerlink" title="si和di寄存器"></a>si和di寄存器</h2><p>si和di是8086CPU中和bx功能相近的寄存器，si和di不能分成两个8位寄存器。</p><h2 id="bp寄存器"><a href="#bp寄存器" class="headerlink" title="bp寄存器"></a>bp寄存器</h2><p>只要在[…]中使用寄存器bp，而指令中没有显性地给出段地址，段地址就在ss中。</p><h2 id="指明处理数据长度"><a href="#指明处理数据长度" class="headerlink" title="指明处理数据长度"></a>指明处理数据长度</h2><p>在没有寄存器名的情况下，用操作符<strong>X ptr</strong>指明内存单元的长度，X可以为word或byte<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># 示例</span><br><span class="line">mov word ptr ds:[0], 1</span><br><span class="line">mov byte ptr ds:[0], 2</span><br></pre></td></tr></table></figure></p><blockquote><p><strong>note</strong> : 有些指令默认了访问的是字单元还是节单元，比如push指令只进行字操作，不用指明数据长度。</p></blockquote><h2 id="div指令"><a href="#div指令" class="headerlink" title="div指令"></a>div指令</h2><p>div为除法指令，使用div做除法要注意以下问题：</p><ul><li>除数：有8位和16位两种</li><li>被除数：默认放在AX或DX和AX中，如果除数为8位则默认在AX中存放；如果除数为16位，被除数则为32位，在DX和AX中存放，DX存放高16位，AX存放低16位</li></ul><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># 示例</span><br><span class="line"># 用除法指令计算100001/100</span><br><span class="line">mov dx, 1</span><br><span class="line">mov ax, 86A1H</span><br><span class="line">mov bx, 100</span><br><span class="line">div mov</span><br></pre></td></tr></table></figure><h2 id="mul指令"><a href="#mul指令" class="headerlink" title="mul指令"></a>mul指令</h2><p>mul是乘法指令，使用mul做乘法时：</p><ol><li>两个相乘的数：两个相乘的数，要么都是8位，要么都是16位。如果是8位，一个默认放在AL中，另一个存放在8位的reg或内存字节单元中；如果是16位，一个默认在AX中，另一个放在16位reg或内存单元中。</li><li>结果：如果是8位的乘法，结果默认放在AX中；如果是16位的乘法，结果高位默认在DX中存放，低位在AX中存放<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># 示例 计算100 * 10</span><br><span class="line">mov al, 100</span><br><span class="line">mov bl, 10</span><br><span class="line">mul bl</span><br></pre></td></tr></table></figure></li></ol>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h2 id=&quot;and-和-or-指令&quot;&gt;&lt;a href=&quot;#and-和-or-指令&quot; class=&quot;headerlink&quot; title=&quot;and 和 or 指令&quot;&gt;&lt;/a&gt;and 和 or 指令&lt;/h2&gt;&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;and指令：将可操作对象的相应位设为0，其它位不变
+      
+    
+    </summary>
+    
+    
+    
+      <category term="notes" scheme="http://yoursite.com/tags/notes/"/>
+    
+      <category term="assembly language" scheme="http://yoursite.com/tags/assembly-language/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>&lt;&lt;汇编语言&gt;&gt;第4~6章笔记</title>
+    <link href="http://yoursite.com/2018/05/24/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80-%E7%AC%AC4-6%E7%AB%A0%E7%AC%94%E8%AE%B0/"/>
+    <id>http://yoursite.com/2018/05/24/汇编语言-第4-6章笔记/</id>
+    <published>2018-05-24T09:18:21.000Z</published>
+    <updated>2019-09-05T07:24:07.222Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="伪指令"><a href="#伪指令" class="headerlink" title="伪指令"></a>伪指令</h2><p>伪指令是由编译器来执行的指令，编译器根据伪指令来进行相关的编译操作</p><h3 id="segment和ends"><a href="#segment和ends" class="headerlink" title="segment和ends"></a>segment和ends</h3><p>segment和ends是一对成对使用的伪指令，用来定义一个段，segment说明一个段的开始，ends结束。一个段必须由一个名称来标识，使用格式为：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">段名 segment</span><br><span class="line">...</span><br><span class="line">段名 ends</span><br></pre></td></tr></table></figure></p><h3 id="end"><a href="#end" class="headerlink" title="end"></a>end</h3><p>end 通知编译器程序的入口和结束<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># 示例</span><br><span class="line">start:</span><br><span class="line">      代码段</span><br><span class="line">end start</span><br></pre></td></tr></table></figure></p><h3 id="assume"><a href="#assume" class="headerlink" title="assume"></a>assume</h3><p>这条伪指令的含义为“假设”。它假设某一段寄存器和程序中某一个用segment…ends定义的段相关联。通过这条指令，编译程序可以将段寄存器和一个具体的段相关联</p><blockquote><p><strong>note</strong> : 具体关联还是要依靠汇编指令的实现，CPU并不知道assume</p></blockquote><h3 id="db、dw、dd"><a href="#db、dw、dd" class="headerlink" title="db、dw、dd"></a>db、dw、dd</h3><p>db定义字节型数据<br>dw定义字型数据<br>dd定义双字型数据</p><h3 id="dup"><a href="#dup" class="headerlink" title="dup"></a>dup</h3><p>dup是一个操作符，同db、dw、dd等一样，也是由编译器识别处理的符号。它配合db、dw、dd等数据定义使用，用来进行数据的重复<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># 示例</span><br><span class="line">db 3 dup (0) # 相当于db 0, 0, 0</span><br><span class="line">db 3 dup(0, 1, 2) #定义了九个字节，它们是0、1、2、0、1、2、0、1、2</span><br><span class="line">db 3 dup(&apos;abc&apos;, &apos;ABC&apos;)</span><br><span class="line"># 定义了18个字节，它们是&apos;abcABCabcABCabcABC&apos;</span><br></pre></td></tr></table></figure></p><p>dup 使用格式为<br>db 重复次数 dup (重复的字节型数据)<br>dw 重复次数 dup (重复的字型数据)<br>dd 重复次数 dup (重复的双字型数据)</p><h3 id="操作符offset"><a href="#操作符offset" class="headerlink" title="操作符offset"></a>操作符offset</h3><p>操作符offset在汇编语言中是由编译器处理的符号，用来取得标号的偏移地址。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">#示例</span><br><span class="line">assume cs:codeesg</span><br><span class="line">codesg segment</span><br><span class="line">    start : mov ax, offset start # 相当于mov ax, 0</span><br><span class="line">    s     : mov ax, offset s     # 相当于mov ax, 3</span><br><span class="line">codeesg ends</span><br><span class="line">end start</span><br></pre></td></tr></table></figure></p><h2 id="DOS系统中-exe文件程序的加载过程"><a href="#DOS系统中-exe文件程序的加载过程" class="headerlink" title="DOS系统中.exe文件程序的加载过程"></a>DOS系统中.exe文件程序的加载过程</h2><p><img src="https://upload-images.jianshu.io/upload_images/10461798-62cad12cd6bd8b52.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="exe文件程序的加载过程"></p><h2 id="loop指令和CX寄存器"><a href="#loop指令和CX寄存器" class="headerlink" title="loop指令和CX寄存器"></a>loop指令和CX寄存器</h2><p>CPU执行loop指令的操作：</p><ol><li>（cx) = (cx) - 1</li><li>判断cx的值，如果不为零则跳至标号处执行程序，为零则继续向下执行。</li></ol><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># 使用方法</span><br><span class="line">mov cx, 循环次数</span><br><span class="line">s:</span><br><span class="line">  循环执行的代码段</span><br><span class="line">  loop s</span><br></pre></td></tr></table></figure><blockquote><p><strong>note</strong> : loop指令实现循环功能，cx存放循环次数</p></blockquote><h2 id="段前缀"><a href="#段前缀" class="headerlink" title="段前缀"></a>段前缀</h2><p>在指令“mov ax, [bx]”中，段地址默认在ds中，我们可以在访问内存单元的指令中显示地给出内存单元所在的段地址。比如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mov ax, cs:[bx]</span><br><span class="line">mov ax, ss:[bx]</span><br></pre></td></tr></table></figure></p><p><strong>cs:、ss:</strong>这些显示给出段地址的在汇编语言中被称为<strong>段前缀</strong></p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h2 id=&quot;伪指令&quot;&gt;&lt;a href=&quot;#伪指令&quot; class=&quot;headerlink&quot; title=&quot;伪指令&quot;&gt;&lt;/a&gt;伪指令&lt;/h2&gt;&lt;p&gt;伪指令是由编译器来执行的指令，编译器根据伪指令来进行相关的编译操作&lt;/p&gt;
+&lt;h3 id=&quot;segment和ends&quot;&gt;&lt;a hre
+      
+    
+    </summary>
+    
+    
+    
+      <category term="notes" scheme="http://yoursite.com/tags/notes/"/>
+    
+      <category term="assembly language" scheme="http://yoursite.com/tags/assembly-language/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>每周分享第一周</title>
+    <link href="http://yoursite.com/2018/05/23/%E6%AF%8F%E5%91%A8%E5%88%86%E4%BA%AB%E7%AC%AC%E4%B8%80%E5%91%A8/"/>
+    <id>http://yoursite.com/2018/05/23/每周分享第一周/</id>
+    <published>2018-05-23T12:35:48.000Z</published>
+    <updated>2019-09-05T07:24:07.219Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote><p>这里记录过去一周，我看到的值得分享的东西.</p></blockquote><blockquote><p>最近看到阮一峰大神的博客的每周分享会，也想搞一个，用来整理我的搜藏夹并共享出来，我会把每周看到有趣的东西分享出来。</p></blockquote><h4 id="教程"><a href="#教程" class="headerlink" title="教程"></a>教程</h4><ul><li>[ 教程 ] <a href="http://www.ruanyifeng.com/blog/2018/01/assembly-language-primer.html" target="_blank" rel="noopener">汇编语言入门 阮一峰</a></li><li>[ 教程 ] <a href="https://zhuanlan.zhihu.com/p/36324559" target="_blank" rel="noopener">如何实现少样本学习？先让神经网络get√视觉比较能力</a></li><li>[ 公开课 ] <a href="https://mva.microsoft.com/colleges/microsoftai#!jobf=Developer" target="_blank" rel="noopener">微软的人工智能公开课</a></li></ul><h4 id="信息"><a href="#信息" class="headerlink" title="信息"></a>信息</h4><ul><li><a href="https://www.zhihu.com/question/275285509/answer/383137673" target="_blank" rel="noopener">首部人工智能基础教材在上海发布</a></li><li><a href="https://zhuanlan.zhihu.com/p/36497423" target="_blank" rel="noopener">Google公司推出面向初级程序员的编程学习应用Grasshopper</a></li></ul><h4 id="博客"><a href="#博客" class="headerlink" title="博客"></a>博客</h4><ul><li><a href="http://www.ruanyifeng.com/blog/2018/04/weekly-issue-1.html" target="_blank" rel="noopener">阮一峰每周分享第 1 期</a></li><li><a href="http://www.ruanyifeng.com/blog/2018/04/weekly-issue-2.html" target="_blank" rel="noopener">阮一峰每周分享第 2 期</a></li><li><a href="http://www.ruanyifeng.com/blog/2018/05/weekly-issue-3.html" target="_blank" rel="noopener">阮一峰每周分享第 3 期</a></li></ul><h4 id="开源项目"><a href="#开源项目" class="headerlink" title="开源项目"></a>开源项目</h4><ul><li><a href="https://github.com/glouw/tinn" target="_blank" rel="noopener">Tinn—C</a><br>C 语言实现的微型神经网络库，在 C 标准库的范围内，源码少于200行。适合嵌入式系统。在强大的桌面系统上训练模型并将其加载到微控制器上，并使用模数转换器来预测实时事件。可以很容易地使用一些独创性的多线程，但主分支将保持单线程来帮助开发嵌入式系统。输入数据，每次训练迭代后再次洗牌数据。通过降低学习率来获得更高的培训准确度。例如，将每次训练迭代的学习率乘以0.99。这将在一个良好的学习最低限度内达到零。</li></ul><h4 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h4><ul><li><a href="https://www.liveedu.tv/" target="_blank" rel="noopener">一个直播写代码的网站</a></li></ul>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;blockquote&gt;
+&lt;p&gt;这里记录过去一周，我看到的值得分享的东西.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;blockquote&gt;
+&lt;p&gt;最近看到阮一峰大神的博客的每周分享会，也想搞一个，用来整理我的搜藏夹并共享出来，我会把每周看到有趣的东西分享出来。&lt;/p&gt;
+&lt;/bloc
+      
+    
+    </summary>
+    
+    
+    
+      <category term="share" scheme="http://yoursite.com/tags/share/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>&lt;&lt;汇编语言&gt;&gt;第2~3章笔记</title>
+    <link href="http://yoursite.com/2018/05/23/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80-%E7%AC%AC2-3%E7%AB%A0%E7%AC%94%E8%AE%B0/"/>
+    <id>http://yoursite.com/2018/05/23/汇编语言-第2-3章笔记/</id>
+    <published>2018-05-23T12:25:23.000Z</published>
+    <updated>2019-09-05T07:24:07.222Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="寄存器"><a href="#寄存器" class="headerlink" title="寄存器"></a>寄存器</h2><blockquote><p><strong>note</strong> : 本书讲的CPU是8086CPU与现代CPU会有所差异</p></blockquote><h3 id="一个典型CPU组成"><a href="#一个典型CPU组成" class="headerlink" title="一个典型CPU组成"></a>一个典型CPU组成</h3><p>由运算器、控制器、寄存器构成，这些器件靠内部总线相连，前一章的总线，相对于CPU内部来说是外部总线。内部总线实现CPU内部各个器件的联系，外部总线实现CPU和主板上的其他器件的联系。其中：</p><ul><li>运算器进行信息处理</li><li>寄存器进行信息存储</li><li>控制器控制各种器件进行工作</li></ul><blockquote><p><strong>note</strong> : 对于一个汇编程序员来说，CPU中的主要部件是寄存器</p></blockquote><h3 id="通用寄存器"><a href="#通用寄存器" class="headerlink" title="通用寄存器"></a>通用寄存器</h3><p>AX，BX，CX，DX这四个（16位）寄存器用来存放一般性数据，称为通用寄存器。为了保证兼容，这四个寄存器可以分成两个8位的寄存器来使用，如AX可以分成AL和AH。</p><h3 id="16位的CPU"><a href="#16位的CPU" class="headerlink" title="16位的CPU"></a>16位的CPU</h3><p>16位CPU的特性：</p><ul><li>运算器一次最多可以处理16位的数据</li><li>寄存器的最大宽度为16位</li><li>寄存器和运算器之间的通路为16位</li></ul><h3 id="8086CPU给出物理地址的方法"><a href="#8086CPU给出物理地址的方法" class="headerlink" title="8086CPU给出物理地址的方法"></a>8086CPU给出物理地址的方法</h3><p>8086CPU有20位地址总线，它采用一种在内部使用两个16位地址合成的方法来形成一个20位地址。地址加法器采用<strong>物理地址 = 段地址 * 16 + 偏移地址</strong>的方法合成地址。</p><p><img src="https://upload-images.jianshu.io/upload_images/10461798-bdf3bc44be54cf96.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="8086CPU相关逻辑结构"></p><blockquote><p><strong>note</strong> : 8086CPU中，一个段的起始地址一定是16的倍数。16位偏移地址的寻址能力为64KB，所以一个段的长度最大为64KB。</p></blockquote><h3 id="段寄存器"><a href="#段寄存器" class="headerlink" title="段寄存器"></a>段寄存器</h3><p>CS、DS、SS、ES这四个寄存器为段寄存器，提供内存单元的段地址。</p><h4 id="CS和IP寄存器"><a href="#CS和IP寄存器" class="headerlink" title="CS和IP寄存器"></a>CS和IP寄存器</h4><p>CS和IP寄存器指示了要读取指令的地址，CS为代码段寄存器，IP为指令指针寄存器。</p><blockquote><p><strong>note</strong> : 8086CPU中，CPU将CS:IP指向的内容当作指令执行</p></blockquote><p>下面是8086CPU读取和执行指令的相关部件</p><p><img src="https://upload-images.jianshu.io/upload_images/10461798-d0673d55d715e006.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt></p><p>工作流程：</p><ol><li>从CS:IP指向的内存单元读取指令，读取的指令进入指令缓冲器</li><li>IP=IP+所读指令长度，从而指向下一条指令</li><li>执行指令。转到步骤1，重复这个过程</li></ol><h4 id="DS和BX寄存器（内存访问）"><a href="#DS和BX寄存器（内存访问）" class="headerlink" title="DS和BX寄存器（内存访问）"></a>DS和BX寄存器（内存访问）</h4><p>DS寄存器通常用来存放要访问数据的段地址，BX寄存器存放内存单元的偏移地址，使用方法：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mov ax, [bx] # 把ds:bx内存单元的数据送入ax中</span><br></pre></td></tr></table></figure></p><h4 id="ES寄存器（内存访问）"><a href="#ES寄存器（内存访问）" class="headerlink" title="ES寄存器（内存访问）"></a>ES寄存器（内存访问）</h4><p>附加段寄存器，存放当前执行程序中一个辅助数据段的段地址。使用时要显示指出数据段地址。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># 示例</span><br><span class="line">mov ax, [bx] # 把ds:bx内存单元的数据送入ax中</span><br><span class="line">mov ax, es:[bx] ## 把es:bx内存单元的数据送入ax中</span><br></pre></td></tr></table></figure></p><h4 id="SS和SP寄存器"><a href="#SS和SP寄存器" class="headerlink" title="SS和SP寄存器"></a>SS和SP寄存器</h4><p>8086CPU提供了相关的指令来以栈的方式来访问内存，任意时刻SS:SP指向栈顶元素。<br>push ax过程：</p><ol><li>SP = SP - 2，SS:SP指向当前栈顶前面的单元，以当前栈顶前面的单元为新的栈顶</li><li>将ax中的内容送入SS:SP指向的内存单元处，SS:SP此时指向新的栈顶</li></ol><p><img src="https://upload-images.jianshu.io/upload_images/10461798-e3eca40423a52d65.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="push指令执行过程"></p><blockquote><p><strong>note</strong> : 8086CPU中，入栈时，栈顶从高地址向低地址方向增长</p></blockquote><p>pop ax过程：</p><ol><li>将SS:SP指向的内存单元处的数据送入ax中</li><li>SP = SP + 2，SS:SP指向当前栈顶下面的单元，以当前栈顶下面的单元为新的栈顶</li></ol><p><img src="https://upload-images.jianshu.io/upload_images/10461798-69e0e8b62258926d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="pop指令执行过程"></p><blockquote><p><strong>note</strong> : push、pop实质上时一种内存传送指令，注意它们的灵活应用。8086CPU只记录栈顶，栈的空间需要我们自己管理。</p></blockquote>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h2 id=&quot;寄存器&quot;&gt;&lt;a href=&quot;#寄存器&quot; class=&quot;headerlink&quot; title=&quot;寄存器&quot;&gt;&lt;/a&gt;寄存器&lt;/h2&gt;&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;note&lt;/strong&gt; : 本书讲的CPU是8086CPU与现代CPU会有所差异&lt;/p
+      
+    
+    </summary>
+    
+    
+    
+      <category term="notes" scheme="http://yoursite.com/tags/notes/"/>
+    
+      <category term="assembly language" scheme="http://yoursite.com/tags/assembly-language/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>&lt;&lt;汇编语言&gt;&gt;第1章笔记</title>
+    <link href="http://yoursite.com/2018/05/22/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80-%E7%AC%AC1%E7%AB%A0%E7%AC%94%E8%AE%B0/"/>
+    <id>http://yoursite.com/2018/05/22/汇编语言-第1章笔记/</id>
+    <published>2018-05-22T01:51:24.000Z</published>
+    <updated>2019-09-05T07:24:07.219Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="第一章-基础知识"><a href="#第一章-基础知识" class="headerlink" title="第一章 基础知识"></a>第一章 基础知识</h1><h2 id="汇编语言基本概念"><a href="#汇编语言基本概念" class="headerlink" title="汇编语言基本概念"></a>汇编语言基本概念</h2><p>汇编指令是机器指令便于记忆的书写格式，通过编译器把汇编指令对应到机器指令，汇编语言有以下三类指令组成</p><ul><li>汇编指令，机器码的助记符，有对应的机器码</li><li>伪指令， 没有对应的机器码，由编译器执行，计算机不执行</li><li>其他符号， 如+，-，*，/等，由编译器识别，没有对应的机器码</li></ul><p><img src="https://upload-images.jianshu.io/upload_images/10461798-636c42da812233cd.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="编译过程"></p><blockquote><p>汇编语言的核心是汇编指令，它决定了汇编语言的特性</p></blockquote><blockquote><p><strong>note</strong> :  每一种CPU都有自己的汇编指令集</p></blockquote><h2 id="CPU对存储器的读写"><a href="#CPU对存储器的读写" class="headerlink" title="CPU对存储器的读写"></a>CPU对存储器的读写</h2><p>CPU想要进行数据读写，必须和外部器件进行下面三类信息的交互：</p><ul><li>存储单元的地址（地址信息）</li><li>器件的选择，读和写的命令（控制信息）</li><li>读或写的数据（数据信息）</li></ul><p>工作流程：</p><ol><li>CPU通过地址线将地址信息发出</li><li>CPU通过控制线发出内存指令，选中储存器芯片，并通知它要从中读取数据</li><li>储存器将存储单元中的数据通过数据线送入CPU</li></ol><p><img src="https://upload-images.jianshu.io/upload_images/10461798-e5138ebb49f631b2.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="读取数据的过程"></p><h2 id="CPU的三种总线"><a href="#CPU的三种总线" class="headerlink" title="CPU的三种总线"></a>CPU的三种总线</h2><h3 id="地址总线"><a href="#地址总线" class="headerlink" title="地址总线"></a>地址总线</h3><p>CPU通过地址总线来指定存储器单元，地址总线的宽度决定了CPU的寻址能力</p><p><img src="https://upload-images.jianshu.io/upload_images/10461798-58ee173fee8bff50.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="在地址总线上发送信息"></p><h3 id="数据总线"><a href="#数据总线" class="headerlink" title="数据总线"></a>数据总线</h3><p>CPU与内存或其他器件之间的数据传送是通过数据总线来进行的，数据总线的宽度决定了CPU和外界数据的传送速度。eg. 8根数据总线一次可传送一个8位二进制数据，而16根数据总线一次可传送两个字节。</p><p><img src="https://upload-images.jianshu.io/upload_images/10461798-3096ab47ec0b82cf.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="在16位数据总线上传送信息"></p><h3 id="控制总线"><a href="#控制总线" class="headerlink" title="控制总线"></a>控制总线</h3><p>CPU对外部器件的控制是通过控制总线来进行的。在这里控制总线是个总称，控制总线是一些不同控制线的集合。有多少根控制总线，就意味着CPU提供了对外部器件的多少种控制。所以，控制总线的宽度决定了CPU对外部器件的控制能力。</p><blockquote><p><strong>note</strong> : 每一个CPU芯片都有许多的管脚，这些管教和总线相连。也可以说这些管脚引出总线。一个CPU可以引出3种总线的宽度标志了这个CPU的不同方面的性能。</p></blockquote><h2 id="主板和接口卡"><a href="#主板和接口卡" class="headerlink" title="主板和接口卡"></a>主板和接口卡</h2><p>每一台PC机中，都有一个主板，主板上有核心器件和一些主要器件，这些器件通过总线相连（地址总线、数据总线、控制总线）。这些器件有CPU、存储器、外围芯片组、扩展插槽等。扩展插槽上一般插有RAM内存条和各类接口卡。</p><p>计算机系统中，所有可用程序及其工作的设备，必须受到CPU的控制。但CPU对外部设备不能直接控制，如显示器、音响。直接控制这些设备的是插在扩展插槽的接口卡上的接口卡，扩展插槽通过总线和CPU相连。所以CPU是通过总线向接口卡发送命令，接口卡根据CPU的命令控制外设进行工作。</p><h2 id="各类存储器芯片"><a href="#各类存储器芯片" class="headerlink" title="各类存储器芯片"></a>各类存储器芯片</h2><p>存储器芯片从读写属性上可以分为两类：</p><ul><li>随机存储器（RAM）。可读可写，但必须带电存储，关机后储存内容消失。</li><li>只读存储器（ROM）。只能读取，关机后内容不丢失。</li></ul><p>从功能和连接上可以分为以下几类：</p><ul><li>随机存储器<br>用于存放CPU使用的绝大部分程序和数据，主随机存储器一般由两个位置上的RAM组成，装在主板上的RAM和插在扩展插槽上的RAM。</li><li>装有BIOS（Basic Input/Output System）的ROM<br>BIOS是由主板和各类接口卡（如显卡、网卡等）厂商提供的软件系统，可以通过它利用该硬件设备进行最基本的输入输出。例如：主板上的ROM中存储着主板的BIOS（通常称为系统BIOS）；显卡上的ROM存储着显卡的BIOS。</li><li>接口卡上的RAM<br>某些接口卡需要对大批量的输入输出数据进行暂时存储。在其上装有RAM。最典型的是显示卡上的RAM，一般称为显存。</li></ul><p><img src="https://upload-images.jianshu.io/upload_images/10461798-7663dbd917fce732.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="PC机中各类存储器的逻辑连接"></p><h2 id="内存地址空间"><a href="#内存地址空间" class="headerlink" title="内存地址空间"></a>内存地址空间</h2><p>各类存储器在物理上是独立的，但CPU在操控它们的时候都把它们当作内存来看待，看作一个由若干个存储单元组成的逻辑存储器，这个逻辑存储器就是我们所说的内存地址空间。</p><p><img src="https://upload-images.jianshu.io/upload_images/10461798-5d7b1c592ec7a6ef.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt></p><p>每个物理存储器在这个存储器中占有一段地址空间，CPU在这段地址空间中读写数据，实际上就是在相对应的物理存储器中读写数据。</p><blockquote><p><strong>note</strong> : 对CPU来讲，系统中的所有存储单元都处于一个统一的逻辑存储器中，他的容量受到CPU寻址能力的限制，这个逻辑存储器即是内存地址空间。</p></blockquote><blockquote><p>这本书已经看完很久了，一直想要以博客的形式整理出来，也是方便以后忘记了可以快速记忆，但是一直没开写-_-，现在也算是开了个头。</p></blockquote>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h1 id=&quot;第一章-基础知识&quot;&gt;&lt;a href=&quot;#第一章-基础知识&quot; class=&quot;headerlink&quot; title=&quot;第一章 基础知识&quot;&gt;&lt;/a&gt;第一章 基础知识&lt;/h1&gt;&lt;h2 id=&quot;汇编语言基本概念&quot;&gt;&lt;a href=&quot;#汇编语言基本概念&quot; class=&quot;head
+      
+    
+    </summary>
+    
+    
+    
+      <category term="notes" scheme="http://yoursite.com/tags/notes/"/>
+    
+      <category term="assembly language" scheme="http://yoursite.com/tags/assembly-language/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>z-score归一化</title>
+    <link href="http://yoursite.com/2018/04/10/z-score%E5%BD%92%E4%B8%80%E5%8C%96/"/>
+    <id>http://yoursite.com/2018/04/10/z-score归一化/</id>
+    <published>2018-04-10T09:34:52.000Z</published>
+    <updated>2019-09-05T07:24:07.219Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="用途"><a href="#用途" class="headerlink" title="用途"></a>用途</h1><p><br><br>对输入数据进行归一化处理<br><br></p><h1 id="公式"><a href="#公式" class="headerlink" title="公式"></a>公式</h1><p><br><br><img src="https://upload-images.jianshu.io/upload_images/10461798-67ac2db52752b77e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt></p><p>其中σ为数据标准差（划重点，不是方差），μ为样本平均值。对数据进行归一化后，数据的平均值变为0，方差变为1。</p><h1 id="直观过程"><a href="#直观过程" class="headerlink" title="直观过程"></a>直观过程</h1><ul><li>第一步零均值化</li><li>第二步归一化方差</li></ul><p><img src="https://upload-images.jianshu.io/upload_images/10461798-4282ff05ca34f274.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt></p><p>原始数据一开始是这样的：</p><p><img src="https://upload-images.jianshu.io/upload_images/10461798-b94ed73759496aff.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt></p><p>前两步减去均值，数据分布为：</p><p><img src="https://upload-images.jianshu.io/upload_images/10461798-f2e557a28d22d5e8.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt></p><p>注意：此时特征x2的方差比x1要大很多</p><p>之后除以数据的标准差，数据分布为：</p><p><img src="https://upload-images.jianshu.io/upload_images/10461798-ccfe7d02f619d9fd.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt></p><p>注意：需要使用相同的μ和σ来归一化测试集和训练集，而不是在训练集和测试集上分别预估μ和σ。因为我们希望不论是训练数据还是测试数据，都是使用相同μ和σ定义的相同数据转换。其中μ和σ是由训练集数据计算得来的。</p><h1 id="这有什么用"><a href="#这有什么用" class="headerlink" title="这有什么用"></a>这有什么用</h1><p><br><br>如果不使用归一化,将会得到一个细长狭窄的代价函数(图中箭头标示为最小值点)<br><br><br><img src="https://upload-images.jianshu.io/upload_images/10461798-8748326185d9eab1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt></p><p>梯度下降过程为：</p><p><img src="https://upload-images.jianshu.io/upload_images/10461798-7ed27c8aba6995f0.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt></p><p>下面是归一化后的代价函数</p><p><img src="https://upload-images.jianshu.io/upload_images/10461798-4179aa1793f67e8a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt></p><p>梯度下降过程为</p><p><img src="https://upload-images.jianshu.io/upload_images/10461798-07836f2a8b674e23.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt></p><p>当数据没有归一化的时候，x1的范围较大（这里假设为0 ~ 1000），x2范围较小（这里假设为0 ~ 10），可以观察到这里x2取值范围远大于x2，这样就造成画损失函数的时候，损失函数可以表示为：</p><p><img src="https://upload-images.jianshu.io/upload_images/10461798-cd9b05d4d20527c9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt></p><p>这样画出来的函数图想的等高线为椭圆状，寻找最优解的过程也较为曲折</p><p><img src="https://upload-images.jianshu.io/upload_images/10461798-cce1072713bb87bf.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt></p><p>而如果进行归一化处理后，函数的损失函数可以表示为：</p><p><img src="https://upload-images.jianshu.io/upload_images/10461798-26c532b83f26e012.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt></p><p>由于两个系数几乎一样，这样画出来的函数图像的等高线则会类似于圆形形状，这样寻找最优解就会较为顺畅：</p><p><img src="https://upload-images.jianshu.io/upload_images/10461798-79e4582afa3d629b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt></p><p>从上可以看出，数据归一化后，最优解的寻优过程明显会变得平缓，更容易正确的收敛到最优解，加快了梯度下降求最优解的速度。</p><p>也可以换一种说法，不同特征的量纲的单位可能会有所不同，变化区间处于不同的数量级。如果不进行归一化，可能导致某些特征被忽略，比如x1的特征范围为1 ~ 1000，x2特征的范围为0 ~ 1，此时如果我们要做一个分类的话，那么x2很可能就会被忽略掉。即使不被忽略掉，做梯度下降时也会变得很慢，甚至不收敛。</p><h1 id="什么时候使用"><a href="#什么时候使用" class="headerlink" title="什么时候使用"></a>什么时候使用</h1><p>当特征的区间相差非常大时使用。比如X1区间是[0,2000]，X2区间是[1,5]，其所形成的等高线非常尖。当使用梯度下降法寻求最优解时，很有可能走“之字型”路线（垂直等高线走），从而导致需要迭代很多次才能收敛。</p><h1 id="其他类型的归一化"><a href="#其他类型的归一化" class="headerlink" title="其他类型的归一化"></a>其他类型的归一化</h1><h2 id="min-max归一化"><a href="#min-max归一化" class="headerlink" title="min-max归一化"></a>min-max归一化</h2><p>也称为离差标准化，是对原始数据的线性变换，使结果值映射到[0 – 1]之间。转换函数如下：</p><p><img src="https://upload-images.jianshu.io/upload_images/10461798-7c1c0a71119e3f9a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt></p><p>这种比较适和于数值比较集中的情况。如果max和min不稳定，很容易使得归一化结果不稳定，使得后续使用效果也不稳定，实际使用中可以用经验常量值来替代max和min。而且当有新数据加入时，可能导致max和min的变化，需要重新定义。(例子:在处理自然图像时，我们获得的像素值在 [0,255] 区间中，常用的处理是将这些像素值除以 255，使它们缩放到 [0,1] 中)</p><h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul><li><a href="https://uqer.io/community/share/56c3e9c6228e5b0fe6b17d95" target="_blank" rel="noopener">https://uqer.io/community/share/56c3e9c6228e5b0fe6b17d95</a></li><li><a href="https://www.deeplearning.ai/" target="_blank" rel="noopener">deeplearning.ai</a></li></ul><p>注：本文涉及的图片及资料均整理翻译自Andrew Ng的Deep Learning系列课程，版权归其所有。</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h1 id=&quot;用途&quot;&gt;&lt;a href=&quot;#用途&quot; class=&quot;headerlink&quot; title=&quot;用途&quot;&gt;&lt;/a&gt;用途&lt;/h1&gt;&lt;p&gt;&lt;br&gt;&lt;br&gt;对输入数据进行归一化处理&lt;br&gt;&lt;br&gt;&lt;/p&gt;
+&lt;h1 id=&quot;公式&quot;&gt;&lt;a href=&quot;#公式&quot; class=&quot;head
+      
+    
+    </summary>
+    
+    
+    
+      <category term="deeplearning" scheme="http://yoursite.com/tags/deeplearning/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Early Stopping</title>
+    <link href="http://yoursite.com/2018/04/06/Early-Stopping/"/>
+    <id>http://yoursite.com/2018/04/06/Early-Stopping/</id>
+    <published>2018-04-06T07:08:09.000Z</published>
+    <updated>2019-09-05T07:24:07.219Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="目的"><a href="#目的" class="headerlink" title="目的"></a>目的</h1><p>为了获得性能良好的神经网络，网络定型过程中需要进行许多关于所用设置（超参数）的决策。超参数之一是定型周期（epoch）的数量：亦即应当完整遍历数据集多少次（一次为一个epoch）？如果epoch数量太少，网络有可能发生欠拟合（即对于定型数据的学习不够充分）；如果epoch数量太多，则有可能发生过拟合（即网络对定型数据中的“噪声”而非信号拟合）。</p><p>早停法旨在解决epoch数量需要手动设置的问题。它也可以被视为一种能够避免网络发生过拟合的正则化方法（与L1/L2权重衰减和丢弃法类似）。</p><p>根本原因就是因为继续训练会导致测试集上的准确率下降。<br>那继续训练导致测试准确率下降的原因猜测可能是1. 过拟合 2. 学习率过大导致不收敛</p><h1 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h1><ul><li>将数据分为训练集和验证集</li><li>每个epoch结束后（或每N个epoch后）： 在验证集上获取测试结果，随着epoch的增加，如果在验证集上发现测试误差上升，则停止训练； </li><li>将停止之后的权重作为网络的最终参数。</li></ul><p>这种做法很符合直观感受，因为精度都不再提高了，在继续训练也是无益的，只会提高训练的时间。那么该做法的一个重点便是怎样才认为验证集精度不再提高了呢？并不是说验证集精度一降下来便认为不再提高了，因为可能经过这个Epoch后，精度降低了，但是随后的Epoch又让精度又上去了，所以不能根据一两次的连续降低就判断不再提高。一般的做法是，在训练的过程中，记录到目前为止最好的验证集精度，当连续10次Epoch（或者更多次）没达到最佳精度时，则可以认为精度不再提高了。</p><h2 id="直观理解"><a href="#直观理解" class="headerlink" title="直观理解"></a>直观理解</h2><p><img src="https://upload-images.jianshu.io/upload_images/10461798-7451d24900546ce7.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Early Stopping"></p><p>最优模型是在垂直虚线的时间点保存下来的模型，即处理测试集时准确率最高的模型。</p><h1 id="为什么能减小过拟合"><a href="#为什么能减小过拟合" class="headerlink" title="为什么能减小过拟合"></a>为什么能减小过拟合</h1><p><img src="https://upload-images.jianshu.io/upload_images/10461798-22c4f22cc9d2c95c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt></p><p>当还未在神经网络运行太多迭代过程的时候，w参数接近于0，因为随机初始化w值的时候，它的值是较小的随机值。当你开始迭代过程，w的值会变得越来越大。到后面时，w的值已经变得十分大了。所以early stopping要做的就是在中间点停止迭代过程。我们将会得到一个中等大小的w参数，会得到与L2正则化相似的结果，选择了w参数较小的神经网络。</p><h1 id="Early-Stopping的缺点"><a href="#Early-Stopping的缺点" class="headerlink" title="Early Stopping的缺点"></a>Early Stopping的缺点</h1><p><img src="https://upload-images.jianshu.io/upload_images/10461798-ce9a75357b5bb137.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt></p><p>没有采取不同的方式来解决优化损失函数和降低方差这两个问题，而是用一种方法同时解决两个问题 ，结果就是要考虑的东西变得更复杂。之所以不能独立地处理，因为如果你停止了优化代价函数，你可能会发现代价函数的值不够小，同时你又不希望过拟合。</p><h1 id="扩充"><a href="#扩充" class="headerlink" title="扩充"></a>扩充</h1><p>如果不用early stopping降低过拟合，另一种方法就是L2正则化，但需尝试L2正则化超级参数λ的很多值，个人更倾向于使用L2正则化，尝试许多不同的λ值。</p><h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul><li><a href="https://deeplearning4j.org/cn/earlystopping" target="_blank" rel="noopener">https://deeplearning4j.org/cn/earlystopping</a></li><li><a href="https://blog.csdn.net/heyongluoyao8/article/details/49429629" target="_blank" rel="noopener">https://blog.csdn.net/heyongluoyao8/article/details/49429629</a></li><li><a href="https://www.deeplearning.ai/" target="_blank" rel="noopener">deeplearning.ai</a></li></ul>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h1 id=&quot;目的&quot;&gt;&lt;a href=&quot;#目的&quot; class=&quot;headerlink&quot; title=&quot;目的&quot;&gt;&lt;/a&gt;目的&lt;/h1&gt;&lt;p&gt;为了获得性能良好的神经网络，网络定型过程中需要进行许多关于所用设置（超参数）的决策。超参数之一是定型周期（epoch）的数量：亦即应当完整遍
+      
+    
+    </summary>
+    
+    
+    
+      <category term="deeplearning" scheme="http://yoursite.com/tags/deeplearning/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>dropout正则化</title>
+    <link href="http://yoursite.com/2018/04/06/dropout%E6%AD%A3%E5%88%99%E5%8C%96/"/>
+    <id>http://yoursite.com/2018/04/06/dropout正则化/</id>
+    <published>2018-04-06T03:24:33.000Z</published>
+    <updated>2019-09-05T07:24:07.219Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="理解dropout"><a href="#理解dropout" class="headerlink" title="理解dropout"></a>理解dropout</h1><ul><li>用于解决过拟合问题</li><li>Dropout存在两个版本：直接（不常用）和反转。(这里只对Inverted Dropout进行说明)</li><li>dropout是指在深度学习网络的训练过程中，对于神经网络单元，按照一定的概率将其暂时从网络中丢弃。（注意是暂时）</li></ul><p><img src="https://upload-images.jianshu.io/upload_images/10461798-b6b4afc39e214094.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt></p><p>上图为Dropout的可视化表示，左边是应用Dropout之前的网络，右边是应用了Dropout的同一个网络。</p><h2 id="dropout-如何工作"><a href="#dropout-如何工作" class="headerlink" title="dropout 如何工作"></a>dropout 如何工作</h2><p>我们知道，典型的神经网络其训练流程是将输入通过网络进行正向传导，然后将误差进行反向传播。Dropout就是针对这一过程之中，随机地删除隐藏层的部分单元，进行上述过程。<br>综合而言，上述过程可以分步骤为：</p><ul><li>随机删除网络中的一些隐藏神经元，保持输入输出神经元不变</li><li>将输入通过修改后的网络进行前向传播，然后将误差通过修改后的网络进行反向传播</li><li>对于另外一批的训练样本，重复上述操作</li></ul><p>在训练阶段期间对激活值进行缩放，而测试阶段保持不变<br>下面是对一层神经网络的实施dropout代码实现：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">d = np.random.rand(<span class="number">3</span>, <span class="number">2</span>) &lt; keep_drop</span><br><span class="line">a = np.multiply(a, d)</span><br><span class="line">a /= keep_drop //对激活值进行缩放，为了不影响下一层网络的最后的预期输出值，加上这个步骤来修正损失的值</span><br></pre></td></tr></table></figure></p><h2 id="dropout为何有效"><a href="#dropout为何有效" class="headerlink" title="dropout为何有效"></a>dropout为何有效</h2><ul><li>由于每次用输入网络的样本进行权值更新时，隐含节点都是以一定概率随机出现，因此不能保证每2个隐含节点每次都同时出现，这样权值的更新不再依赖于有固定关系隐含节点的共同作用，阻止了某些特征仅仅在其它特定特征下才有效果的情况，减少神经元之间复杂的共适应性。</li><li>由于每一次都会随机地删除节点，下一个节点的输出不再那么依靠上一个节点，也就是说它在分配权重时，不会给上一层的某一结点非配过多的权重，起到了和L2正则化压缩权重差不多的作用。</li><li>可以将dropout看作是模型平均的一种，平均一个大量不同的网络。不同的网络在不同的情况下过拟合，虽然不同的网络可能会产生不同程度的过拟合，但是将其公用一个损失函数，相当于对其同时进行了优化，取了平均，因此可以较为有效地防止过拟合的发生。对于每次输入到网络中的样本（可能是一个样本，也可能是一个batch的样本），其对应的网络结构都是不同的，但所有的这些不同的网络结构又同时共享隐含节点的权值，这种平均的架构被发现通常是十分有用的来减少过拟合方法。</li></ul><h2 id="dropout使用技巧"><a href="#dropout使用技巧" class="headerlink" title="dropout使用技巧"></a>dropout使用技巧</h2><ul><li>在可能出现过拟合的网络层使用dropout</li><li>dropout也可以被用作一种添加噪声的方法，直接对input进行操作。输入层设为更接近1的数，使得输入变化不会太大</li></ul><h2 id="dropout缺点"><a href="#dropout缺点" class="headerlink" title="dropout缺点"></a>dropout缺点</h2><ul><li>明确定义的损失函数每一次迭代都会下降，而dropout每一次都会随机删除节点，也就是说每一次训练的网络都是不同的，损失函数不再被明确地定义，在某种程度上很难计算，我们失去了调试工具。</li></ul><h1 id="当前Dropout的使用情况"><a href="#当前Dropout的使用情况" class="headerlink" title="当前Dropout的使用情况"></a>当前Dropout的使用情况</h1><p>当前Dropout被大量利用于全连接网络，而且一般人为设置为0.5或者0.3，而在卷积隐藏层由于卷积自身的稀疏化以及稀疏化的ReLu函数的大量使用等原因，Dropout策略在卷积隐藏层中使用较少。<br>总体而言，Dropout是一个超参，需要根据具体的网路，具体的应用领域进行尝试。</p><h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul><li><a href="https://www.deeplearning.ai/" target="_blank" rel="noopener">deeplearning.ai</a><br>注：本文涉及的图片及资料均整理翻译自Andrew Ng的Deep Learning系列课程，版权归其所有。</li></ul>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h1 id=&quot;理解dropout&quot;&gt;&lt;a href=&quot;#理解dropout&quot; class=&quot;headerlink&quot; title=&quot;理解dropout&quot;&gt;&lt;/a&gt;理解dropout&lt;/h1&gt;&lt;ul&gt;
+&lt;li&gt;用于解决过拟合问题&lt;/li&gt;
+&lt;li&gt;Dropout存在两个版本：直接（
+      
+    
+    </summary>
+    
+    
+    
+      <category term="deeplearning" scheme="http://yoursite.com/tags/deeplearning/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>L2正则化</title>
+    <link href="http://yoursite.com/2018/04/05/L2%E6%AD%A3%E5%88%99%E5%8C%96/"/>
+    <id>http://yoursite.com/2018/04/05/L2正则化/</id>
+    <published>2018-04-05T05:56:49.000Z</published>
+    <updated>2019-09-05T07:24:07.219Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><p>如果神经网络过度拟合了数据，也就是存在高方差问题。我们经常会使用正则化来降低方差，也可以准备更多的数据，但是有时无法获取到足够的数据或者说获取数据的成本很高，所以正则化是一个很好的方法来解决过拟合问题。</p><h1 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h1><h2 id="公式"><a href="#公式" class="headerlink" title="公式"></a>公式</h2><p><img src="https://upload-images.jianshu.io/upload_images/10461798-773ce1f32c861958.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="L2正则化"></p><h2 id="解释"><a href="#解释" class="headerlink" title="解释"></a>解释</h2><ul><li>λ 是正则化参数，通常使用验证集或者交叉验证集来配置这个参数</li><li>其中第二项为正则化项： <img src="https://upload-images.jianshu.io/upload_images/10461798-80c7d439a9b23729.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="正则化项"></li></ul><h2 id="加上正则化项后如何实现实现梯度下降"><a href="#加上正则化项后如何实现实现梯度下降" class="headerlink" title="加上正则化项后如何实现实现梯度下降"></a>加上正则化项后如何实现实现梯度下降</h2><p>反向传播时：<img src="https://upload-images.jianshu.io/upload_images/10461798-e814314464053e83.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt><br>更新参数：<img src="https://upload-images.jianshu.io/upload_images/10461798-7a3ba73006488b09.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt><br>事实上，这相当于我们把矩阵W减去αλ/m倍的它，避免权重矩阵过大，这也时L2正则化有时被叫做权重衰减的原因</p><h2 id="为什么正则化可以降低方差"><a href="#为什么正则化可以降低方差" class="headerlink" title="为什么正则化可以降低方差"></a>为什么正则化可以降低方差</h2><h3 id="直观上理解"><a href="#直观上理解" class="headerlink" title="直观上理解"></a>直观上理解</h3><p>如果正则化λ设置得足够大，权重矩阵W将被设置为接近于0的值，也就是把多个隐藏单元的权重设为0，消除了这些隐藏单元的许多影响。<br>这个大大简化了的神经网络会变成一个很小的网络，小到如同一个逻辑回归单元，可是深度却很大，使过拟合的网络变成更接近高偏差的状态，但是λ会存在一个中间值，使得这个网络维持在一个低方差且偏差不那么高的状态。</p><h3 id="下面以tanh为激活函数为例子"><a href="#下面以tanh为激活函数为例子" class="headerlink" title="下面以tanh为激活函数为例子"></a>下面以tanh为激活函数为例子</h3><p><img src="https://upload-images.jianshu.io/upload_images/10461798-e38f8618c6c52373.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt><br>当λ参数变大时，W矩阵变小，相应地Z矩阵也会变小，使得它维持在中间红色的部分，即相对线性的部分，使得网络更加线性，表达能力减弱，从而实现减低方差的功能</p><h3 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h3><ul><li>为什么只正则化参数w，不加上参数b？<br>因为w通常是一个高维参数矢量，已经可以表达高方差的问题</li></ul><h3 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h3><ul><li>当观察损失函数变化形势时，应使用之前定义的有正则化项的损失函数，否则可能观察不到单调递减的现象，因为此时损失函数已经有了全新的定义。</li></ul><h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><ul><li><a href="https://www.deeplearning.ai/" target="_blank" rel="noopener">deeplearning.ai</a><br>注：本文涉及的图片及资料均整理翻译自Andrew Ng的Deep Learning系列课程，版权归其所有。</li></ul>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h1 id=&quot;介绍&quot;&gt;&lt;a href=&quot;#介绍&quot; class=&quot;headerlink&quot; title=&quot;介绍&quot;&gt;&lt;/a&gt;介绍&lt;/h1&gt;&lt;p&gt;如果神经网络过度拟合了数据，也就是存在高方差问题。我们经常会使用正则化来降低方差，也可以准备更多的数据，但是有时无法获取到足够的数据或者说获
+      
+    
+    </summary>
+    
+    
+    
+      <category term="deeplearning" scheme="http://yoursite.com/tags/deeplearning/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>hello, blog</title>
+    <link href="http://yoursite.com/2018/03/24/hello-blog/"/>
+    <id>http://yoursite.com/2018/03/24/hello-blog/</id>
+    <published>2018-03-24T13:00:34.000Z</published>
+    <updated>2019-09-05T07:24:07.219Z</updated>
+    
+    <content type="html"><![CDATA[<p>从今天开始，我会在这里分享一些我的学习总结。</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;从今天开始，我会在这里分享一些我的学习总结。&lt;/p&gt;
+
+      
+    
+    </summary>
+    
+    
+    
+      <category term="chat" scheme="http://yoursite.com/tags/chat/"/>
+    
+  </entry>
+  
+</feed>
