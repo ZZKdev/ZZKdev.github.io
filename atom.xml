@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2019-09-05T10:15:22.990Z</updated>
+  <updated>2019-10-03T14:54:19.794Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -15,6 +15,35 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>生活blog</title>
+    <link href="http://yoursite.com/2019/10/03/%E7%94%9F%E6%B4%BBblog/"/>
+    <id>http://yoursite.com/2019/10/03/生活blog/</id>
+    <published>2019-10-03T14:13:42.000Z</published>
+    <updated>2019-10-03T14:54:19.794Z</updated>
+    
+    <content type="html"><![CDATA[<p>写这个博客的原因：</p><ul><li>看看自己每天干了啥</li><li>以后自己可以看看过去的自己在干什么，就像时光穿梭一样，很酷</li><li>可以将一天中的一些小想法记录下来，这些想法不适合当成博客发布出来，有的时候更多的是吐槽</li><li>我觉得这是一件很有意义的事情，像 b 站 up 主一样拍 vlog 记录生活，可以记录下生活有趣的瞬间，虽然我的生活可能很无趣，但也记录了我生活的点点滴滴，毕竟平平淡淡才是真。我不会拍 vlog ，也不擅长在镜头前表现自己。所以我这个是 no video blog。</li></ul><p>10 月 4 号</p><p>今天是 10 月 4 号，这是我第一天开始记录。今天早上和同学去松山湖图书馆坐了一天，没错就是坐了一天，午饭也没有吃 =_=。到晚上一起去吃了烤肉，不是很好吃。。回来后枯燥的一天结束了。</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;写这个博客的原因：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;看看自己每天干了啥&lt;/li&gt;
+&lt;li&gt;以后自己可以看看过去的自己在干什么，就像时光穿梭一样，很酷&lt;/li&gt;
+&lt;li&gt;可以将一天中的一些小想法记录下来，这些想法不适合当成博客发布出来，有的时候更多的是吐槽&lt;/li&gt;
+&lt;li&gt;我觉得
+      
+    
+    </summary>
+    
+    
+    
+      <category term="life" scheme="http://yoursite.com/tags/life/"/>
+    
+  </entry>
   
   <entry>
     <title>fopen 不 fclose 是否会保存</title>
