@@ -83,13 +83,13 @@
 <meta property="og:site_name" content="我的博客">
 <meta property="og:description" content="有时候写 Git Commit Message 的时候，不知道如何写好。最近在网上看到一个规范感觉很好,Angular 团队的 Git Commit 指南，配和 Commitizen 来使用效果相当好 Angular 格式它的提交格式如下： 12345&amp;lt;type&amp;gt;(&amp;lt;scope&amp;gt;): &amp;lt;subject&amp;gt;&amp;lt;BLANK LINE&amp;gt;&amp;lt;body&amp;gt;">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://yoursite.com/2020/02/05/Git-Commit-要怎么写/1580891604078.png">
-<meta property="og:image" content="http://yoursite.com/2020/02/05/Git-Commit-要怎么写/1580893363575.png">
-<meta property="og:updated_time" content="2020-02-05T09:25:06.241Z">
+<meta property="og:image" content="http://yoursite.com/images/resources/1580891604078.png">
+<meta property="og:image" content="http://yoursite.com/images/resources/1580893363575.png">
+<meta property="og:updated_time" content="2020-02-05T09:52:58.854Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Git Commit 要怎么写">
 <meta name="twitter:description" content="有时候写 Git Commit Message 的时候，不知道如何写好。最近在网上看到一个规范感觉很好,Angular 团队的 Git Commit 指南，配和 Commitizen 来使用效果相当好 Angular 格式它的提交格式如下： 12345&amp;lt;type&amp;gt;(&amp;lt;scope&amp;gt;): &amp;lt;subject&amp;gt;&amp;lt;BLANK LINE&amp;gt;&amp;lt;body&amp;gt;">
-<meta name="twitter:image" content="http://yoursite.com/2020/02/05/Git-Commit-要怎么写/1580891604078.png">
+<meta name="twitter:image" content="http://yoursite.com/images/resources/1580891604078.png">
 
 
 
@@ -357,7 +357,7 @@
 <h3 id="Footer"><a href="#Footer" class="headerlink" title="Footer"></a>Footer</h3><p>可选的，用来宣布重大更改、链接已解决的问题，提及贡献者等。</p>
 <h2 id="样例"><a href="#样例" class="headerlink" title="样例"></a>样例</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git commit -m <span class="string">"fix(core): remove deprecated and defunct wtf* apis"</span> \</span><br><span class="line">-m <span class="string">"These apis have been deprecated in v8, so they should stick around till v10, but since they are defunct we are removing them early so that they don't take up payload size."</span> \</span><br><span class="line">-m <span class="string">"PR Close #33949"</span></span><br></pre></td></tr></table></figure>
 <p>使用多个 <code>-m</code> 来连接段落而不是简单的行</p>
-<p><img src="1580891604078.png" alt="1580891604078"></p>
+<p><img src="/images/resources/1580891604078.png" alt="1580891604078"></p>
 <h2 id="好处"><a href="#好处" class="headerlink" title="好处"></a>好处</h2><p>这样结构化的信息使我们在游览 git log 的时候就非常方便</p>
 <p>比如，我要查看所有 <code>feat</code> 、<code>fix</code> 类型的提交</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">log</span> --oneline --grep <span class="string">"^feat|^fix"</span></span><br></pre></td></tr></table></figure>
@@ -370,7 +370,7 @@
 <p>使用：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">conventional-changelog -p angular -i CHANGELOG.md -s</span><br></pre></td></tr></table></figure>
 <h2 id="使用-Commitizen"><a href="#使用-Commitizen" class="headerlink" title="使用 Commitizen"></a>使用 Commitizen</h2><p><a href="https://github.com/commitizen/cz-cli" target="_blank" rel="noopener">commitizen</a> 使用 git cz 命令来代替 git commit，强制我们使用合格的规范。</p>
-<p><img src="1580893363575.png" alt="1580893363575"></p>
+<p><img src="/images/resources/1580893363575.png" alt="1580893363575"></p>
 <p>安装</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install -g commitizen</span><br></pre></td></tr></table></figure>
 <p>安装好之后，如果不指定特定规范就和普通的 git commit 的一样。下面使用 <a href="https://github.com/angular/angular.js/blob/master/DEVELOPERS.md#-git-commit-guidelines" target="_blank" rel="noopener">AngularJS’s commit message convention</a> </p>
