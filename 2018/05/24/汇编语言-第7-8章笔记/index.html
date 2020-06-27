@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/avatar.png?v=5.1.4">
+
+
+
+
+
+
+
+  <meta name="keywords" content="notes,assembly language," />
+
+
+
+
+  
+
+
+  <link rel="alternate" href="/atom.xml" title="我的博客" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="and 和 or 指令 and指令：将可操作对象的相应位设为0，其它位不变。123mov al, 01100011Band al, 00111011B# 执行后al &#x3D; 00100011B or指令：将可操作对象的相应位设为1，其他位不变123mov al, 01100011Bor al,  00111011B# 执行后：al &#x3D; 01111011B 利用and和or指令进行巧">
+<meta property="og:type" content="article">
+<meta property="og:title" content="&lt;&lt;汇编语言&gt;&gt;第7~8章笔记">
+<meta property="og:url" content="http://yoursite.com/2018/05/24/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80-%E7%AC%AC7-8%E7%AB%A0%E7%AC%94%E8%AE%B0/index.html">
+<meta property="og:site_name" content="我的博客">
+<meta property="og:description" content="and 和 or 指令 and指令：将可操作对象的相应位设为0，其它位不变。123mov al, 01100011Band al, 00111011B# 执行后al &#x3D; 00100011B or指令：将可操作对象的相应位设为1，其他位不变123mov al, 01100011Bor al,  00111011B# 执行后：al &#x3D; 01111011B 利用and和or指令进行巧">
+<meta property="article:published_time" content="2018-05-24T15:15:30.000Z">
+<meta property="article:modified_time" content="2020-06-27T15:00:54.149Z">
+<meta property="article:author" content="ZZKdev">
+<meta property="article:tag" content="notes">
+<meta property="article:tag" content="assembly language">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":true,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/05/24/汇编语言-第7-8章笔记/"/>
+
+
+
+
+
+  <title><<汇编语言>>第7~8章笔记 | 我的博客</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">我的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">我每天都好饿啊</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/24/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80-%E7%AC%AC7-8%E7%AB%A0%E7%AC%94%E8%AE%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="ZZKdev">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="我的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline"><<汇编语言>>第7~8章笔记</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-24T23:15:30+08:00">
+                2018-05-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="and-和-or-指令"><a href="#and-和-or-指令" class="headerlink" title="and 和 or 指令"></a>and 和 or 指令</h2><ol>
+<li>and指令：将可操作对象的相应位设为0，其它位不变。<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mov al, 01100011B</span><br><span class="line">and al, 00111011B</span><br><span class="line"># 执行后al &#x3D; 00100011B</span><br></pre></td></tr></table></figure></li>
+<li>or指令：将可操作对象的相应位设为1，其他位不变<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mov al, 01100011B</span><br><span class="line">or al,  00111011B</span><br><span class="line"># 执行后：al &#x3D; 01111011B</span><br></pre></td></tr></table></figure>
+<h3 id="利用and和or指令进行巧妙的大小写转化"><a href="#利用and和or指令进行巧妙的大小写转化" class="headerlink" title="利用and和or指令进行巧妙的大小写转化"></a>利用and和or指令进行巧妙的大小写转化</h3>对ASCII码的二进制形式进行观察，可以看出大写字母的第五位为0，小写字母的第五位为1。<br>这样利用and和or指令就可以进行大小写转化了<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># 示例</span><br><span class="line">or  al, 00100000B # 转化成小写字符</span><br><span class="line">and al, 11011111B # 转化成大写字符</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<h2 id="si和di寄存器"><a href="#si和di寄存器" class="headerlink" title="si和di寄存器"></a>si和di寄存器</h2><p>si和di是8086CPU中和bx功能相近的寄存器，si和di不能分成两个8位寄存器。</p>
+<h2 id="bp寄存器"><a href="#bp寄存器" class="headerlink" title="bp寄存器"></a>bp寄存器</h2><p>只要在[…]中使用寄存器bp，而指令中没有显性地给出段地址，段地址就在ss中。</p>
+<h2 id="指明处理数据长度"><a href="#指明处理数据长度" class="headerlink" title="指明处理数据长度"></a>指明处理数据长度</h2><p>在没有寄存器名的情况下，用操作符<strong>X ptr</strong>指明内存单元的长度，X可以为word或byte</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># 示例</span><br><span class="line">mov word ptr ds:[0], 1</span><br><span class="line">mov byte ptr ds:[0], 2</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><strong>note</strong> : 有些指令默认了访问的是字单元还是节单元，比如push指令只进行字操作，不用指明数据长度。</p>
+</blockquote>
+<h2 id="div指令"><a href="#div指令" class="headerlink" title="div指令"></a>div指令</h2><p>div为除法指令，使用div做除法要注意以下问题：</p>
+<ul>
+<li>除数：有8位和16位两种</li>
+<li>被除数：默认放在AX或DX和AX中，如果除数为8位则默认在AX中存放；如果除数为16位，被除数则为32位，在DX和AX中存放，DX存放高16位，AX存放低16位</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># 示例</span><br><span class="line"># 用除法指令计算100001&#x2F;100</span><br><span class="line">mov dx, 1</span><br><span class="line">mov ax, 86A1H</span><br><span class="line">mov bx, 100</span><br><span class="line">div mov</span><br></pre></td></tr></table></figure>
+<h2 id="mul指令"><a href="#mul指令" class="headerlink" title="mul指令"></a>mul指令</h2><p>mul是乘法指令，使用mul做乘法时：</p>
+<ol>
+<li>两个相乘的数：两个相乘的数，要么都是8位，要么都是16位。如果是8位，一个默认放在AL中，另一个存放在8位的reg或内存字节单元中；如果是16位，一个默认在AX中，另一个放在16位reg或内存单元中。</li>
+<li>结果：如果是8位的乘法，结果默认放在AX中；如果是16位的乘法，结果高位默认在DX中存放，低位在AX中存放<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># 示例 计算100 * 10</span><br><span class="line">mov al, 100</span><br><span class="line">mov bl, 10</span><br><span class="line">mul bl</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>谢谢你请我喝可乐</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.png" alt="ZZKdev 微信支付"/>
+        <p>微信支付</p>
+      </div>
+    
+
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/notes/" rel="tag"><i class="fa fa-tag"></i>notes</a>
+          
+            <a href="/tags/assembly-language/" rel="tag"><i class="fa fa-tag"></i>assembly language</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/05/24/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80-%E7%AC%AC4-6%E7%AB%A0%E7%AC%94%E8%AE%B0/" rel="next" title="<<汇编语言>>第4~6章笔记">
+                <i class="fa fa-chevron-left"></i> <<汇编语言>>第4~6章笔记
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/05/25/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80-%E7%AC%AC9-10%E7%AB%A0%E7%AC%94%E8%AE%B0/" rel="prev" title="<<汇编语言>>第9~10章笔记">
+                <<汇编语言>>第9~10章笔记 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zODQ3OC8xNTAwNg"></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.png"
+                alt="ZZKdev" />
+            
+              <p class="site-author-name" itemprop="name">ZZKdev</p>
+              <p class="site-description motion-element" itemprop="description">我爱学习</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%20%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">15</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/ZZKdev" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="2657530327@qq.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-angle-down"></i>
+                <h4>左邻右舍哈哈哈</h4>
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://potion4.github.io" title="42yeah(父是父,子是子.我是父)" target="_blank">42yeah(父是父,子是子.我是父)</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#and-和-or-指令"><span class="nav-number">1.</span> <span class="nav-text">and 和 or 指令</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#利用and和or指令进行巧妙的大小写转化"><span class="nav-number">1.1.</span> <span class="nav-text">利用and和or指令进行巧妙的大小写转化</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#si和di寄存器"><span class="nav-number">2.</span> <span class="nav-text">si和di寄存器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#bp寄存器"><span class="nav-number">3.</span> <span class="nav-text">bp寄存器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#指明处理数据长度"><span class="nav-number">4.</span> <span class="nav-text">指明处理数据长度</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#div指令"><span class="nav-number">5.</span> <span class="nav-text">div指令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#mul指令"><span class="nav-number">6.</span> <span class="nav-text">mul指令</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+            <span id="scrollpercent"><span>0</span>%</span>
+          
+        </div>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ZZKdev</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/three.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/three-waves.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
+<!-- love.js include extends  --> <script type="text/javascript" src="/js/src/love.js"></script>
+
