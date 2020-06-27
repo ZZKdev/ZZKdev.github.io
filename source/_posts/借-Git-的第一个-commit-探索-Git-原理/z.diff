@@ -1,0 +1,51 @@
+diff --git a/Makefile b/Makefile
+index a6bba79ba1..2dad8ff145 100644
+--- a/Makefile
++++ b/Makefile
+@@ -8,7 +8,7 @@ all: $(PROG)
+ install: $(PROG)
+ 	install $(PROG) $(HOME)/bin/
+ 
+-LIBS= -lssl
++LIBS= -lcrypto -lz
+ 
+ init-db: init-db.o
+ 
+diff --git a/cache.h b/cache.h
+index 98a32a9ad3..70127a6974 100644
+--- a/cache.h
++++ b/cache.h
+@@ -2,6 +2,7 @@
+ #define CACHE_H
+ 
+ #include <stdio.h>
++#include <string.h>
+ #include <sys/stat.h>
+ #include <fcntl.h>
+ #include <stddef.h>
+@@ -58,9 +59,9 @@ struct cache_entry {
+ 	unsigned char name[0];
+ };
+ 
+-const char *sha1_file_directory;
+-struct cache_entry **active_cache;
+-unsigned int active_nr, active_alloc;
++extern const char *sha1_file_directory;
++extern struct cache_entry **active_cache;
++extern unsigned int active_nr, active_alloc;
+ 
+ #define DB_ENVIRONMENT "SHA1_FILE_DIRECTORY"
+ #define DEFAULT_DB_ENVIRONMENT ".dircache/objects"
+diff --git a/init-db.c b/init-db.c
+index 25dc13fe10..69b8c1cf3d 100644
+--- a/init-db.c
++++ b/init-db.c
+@@ -20,7 +20,7 @@ int main(int argc, char **argv)
+ 	if (sha1_dir) {
+ 		struct stat st;
+ 		if (!stat(sha1_dir, &st) < 0 && S_ISDIR(st.st_mode))
+-			return;
++			return 1;
+ 		fprintf(stderr, "DB_ENVIRONMENT set to bad directory %s: ", sha1_dir);
+ 	}
+ 
